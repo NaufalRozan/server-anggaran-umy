@@ -31,6 +31,18 @@ class UserRepository {
         return db.user.findMany();
     }
 
+    static async UpdatePassword(id: string, password: string, salt: string) {
+        return db.user.update({
+            where: {
+                id
+            },
+            data: {
+                password,
+                salt
+            }
+        })
+    }
+
 }
 
 export default UserRepository;

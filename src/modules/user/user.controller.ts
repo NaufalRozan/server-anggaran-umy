@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserInput } from "./user.schema";
+import { ChangePasswordInput, CreateUserInput } from "./user.schema";
 import { errorFilter } from "../../middlewares/error-handling";
 import UserRepository from "./user.repository";
 import { verifyPassword } from "../../utils/hash";
@@ -83,6 +83,32 @@ export async function getAllUserHandler(
     try {
         const users = await UserService.getAllUsers()
         return users;
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+
+export async function getUserByIdHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+) {
+    try {
+        const user = await UserService.getUserById(request.user.id)
+        return user;
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+
+export async function changePasswordHandler(
+    request: FastifyRequest<{
+        Body: ChangePasswordInput
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        await UserService.changePassword(request.user.id, request.body.newPassword, request.body.oldPassword)
+        return { message: 'Password updated' }
     } catch (e) {
         errorFilter(e, reply);
     }

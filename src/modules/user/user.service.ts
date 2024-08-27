@@ -16,6 +16,32 @@ class UserService {
     static async getAllUsers() {
         return UserRepository.FindAll();
     }
+
+    static async getUserById(userId: string){
+        return UserRepository.FindById(userId);
+    }
+
+    static async changePassword(userId: string, newPassword: string, oldPassword: string) {
+        const user = await UserRepository.FindById(userId);
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const validPassword = verifyPassword({
+            hash: user?.password,
+            salt: user?.salt,
+            candidatePassword: oldPassword
+        })
+
+        const { hash, salt } = hashPassword(newPassword);
+
+        if (validPassword) {
+            await UserRepository.UpdatePassword(userId, hash, salt);
+        } else {
+            throw new Error("Password is incorrect");
+        }
+    }
 }
 
 export default UserService

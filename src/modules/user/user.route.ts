@@ -1,12 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { $ref } from "./user.schema";
-import { getAllUserHandler, loginUserHandler, logoutHandler, registerUserHandler } from "./user.controller";
+import { changePasswordHandler, getAllUserHandler, getUserByIdHandler, loginUserHandler, logoutHandler, registerUserHandler } from "./user.controller";
 
 export async function userRoutes(server: FastifyInstance) {
     
 
     server.get(
-        '/',
+        '/all',
         {
             schema:{
                 summary: 'Get all user',
@@ -16,6 +16,34 @@ export async function userRoutes(server: FastifyInstance) {
         },
         getAllUserHandler,
     )
+
+    server.get(
+        '/',
+        {
+            schema:{
+                summary: 'Get one user by token id',
+                tags: ['User'],
+                response: {
+                    200: $ref('userResponseSchema')
+                }
+            },
+            preHandler: [server.authenticate]
+        },
+        getUserByIdHandler
+    )
+
+    server.put(
+        '/change-password',
+        {
+            schema:{
+                summary: 'Change user password',
+                tags: ['User'],
+                body: $ref('changePasswordSchema'),
+            },
+            preHandler: [server.authenticate]
+        },
+        changePasswordHandler
+    )
 }
 
 export async function authRoutes(server: FastifyInstance) {
@@ -24,7 +52,7 @@ export async function authRoutes(server: FastifyInstance) {
         {
             schema: {
                 summary: 'Register user',
-                tags: ['User'],
+                tags: ['Auth'],
                 body: $ref('createUserSchema'),
                 response: {
                     201: $ref('createUserResponseSchema'),
@@ -39,7 +67,7 @@ export async function authRoutes(server: FastifyInstance) {
         {
             schema: {
                 summary: 'Login user',
-                tags: ['User'],
+                tags: ['Auth'],
                 body: $ref('loginSchema'),
                 response: {
                     200: $ref('loginResponseSchema'),
@@ -53,7 +81,7 @@ export async function authRoutes(server: FastifyInstance) {
         '/logout',
         {
             schema: {
-                tags: ['User'],
+                tags: ['Auth'],
                 summary: 'Logout user',
             },
             preHandler: [server.authenticate],
