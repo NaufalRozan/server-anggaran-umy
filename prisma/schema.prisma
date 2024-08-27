@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  username  String
+  password  String
+  salt      String
+  UnitKerja UnitKerja?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model UnitKerja {
+  id                     String   @id @default(cuid())
+  user_id                String   @unique
+  golongan_unit_kerja_id String?
+  name                   String
+  tahun                  String
+  RK1                    RK1[]
+  IKS                    IKS[]
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  User              User               @relation(fields: [user_id], references: [id])
+  GolonganUnitKerja GolonganUnitKerja? @relation(fields: [golongan_unit_kerja_id], references: [id])
+
+  @@map("unit_kerja")
+}
+
+model GolonganUnitKerja {
+  id        String      @id @default(cuid())
+  name      String
+  UnitKerja UnitKerja[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("golongan_unit_kerja")
+}
+
+model RK1 {
+  id            String @id @default(cuid())
+  unit_kerja_id String
+  visi          String
+  misi          String
+  tujuan_umum   String
+  tujuan_khusus String
+  keterangan    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  UnitKerja UnitKerja @relation(fields: [unit_kerja_id], references: [id])
+
+  @@map("rk1")
+}
+
+model IKS {
+  id              String         @id @default(cuid())
+  unit_kerja_id   String
+  name            String
+  kode_iks        String
+  nama_iks        String
+  sifat           String
+  baseline        String
+  target          String
+  jumlah_kegiatan Int
+  mata_anggaran   MataAnggaran[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  UnitKerja UnitKerja @relation(fields: [unit_kerja_id], references: [id])
+
+  @@map("iks")
+}
+
+model MataAnggaran {
+  id                 String @id @default(cuid())
+  iks_id             String
+  no_kegiatan        String
+  kode_mata_anggaran String
+  nama_mata_anggaran String
+  uraian             String
+  output             String
+  waktu              String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  IKS IKS @relation(fields: [iks_id], references: [id])
+
+  @@map("mata_anggaran")
+}
