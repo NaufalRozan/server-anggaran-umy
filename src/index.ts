@@ -14,7 +14,7 @@ server.register(import("@fastify/swagger-ui"), {
 });
 
 server.register(cors, {
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'https://spmi.iqbalalhabib.com'],
     credentials: true,
 })
 
