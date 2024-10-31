@@ -1,5 +1,5 @@
 import { ResponseError } from "../errors/response-error";
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { FastifyReply } from "fastify";
 import { ZodError } from "zod";
 
@@ -21,7 +21,7 @@ export const errorFilter = (e: unknown, res: FastifyReply) => {
     return res.code(400).send({
       errors,
     });
-  } else if (e instanceof Prisma.PrismaClientKnownRequestError) {
+  } else if (e instanceof PrismaClientKnownRequestError) {
     if (e.code === "P2002") {
       return res.code(400).send({
         errors: "data already exists",

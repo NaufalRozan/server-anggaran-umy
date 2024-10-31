@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { $ref } from "./user.schema";
-import { changePasswordHandler, getAllUserHandler, getUserByIdHandler, loginUserHandler, logoutHandler, registerUserHandler } from "./user.controller";
+import { changePasswordHandler, connectUnitHandler, deleteUserHandler, disconnectUnitHandler, getAllUserHandler, getUserByIdHandler, getUserByTokenHandler, loginUserHandler, logoutHandler, registerUserHandler, updateUserHandler } from "./user.controller";
 
 export async function userRoutes(server: FastifyInstance) {
     
@@ -11,6 +11,12 @@ export async function userRoutes(server: FastifyInstance) {
             schema:{
                 summary: 'Get all user',
                 tags: ['User'],
+                // response: {
+                //     200: {
+                //         type: 'array',
+                //         items: $ref('userResponseSchema')
+                //     }
+                // }
             },
             preHandler: [server.authenticate]
         },
@@ -23,9 +29,24 @@ export async function userRoutes(server: FastifyInstance) {
             schema:{
                 summary: 'Get one user by token id',
                 tags: ['User'],
-                response: {
-                    200: $ref('userResponseSchema')
-                }
+                // response: {
+                //     200: $ref('userAllResponseSchema')
+                // }
+            },
+            preHandler: [server.authenticate]
+        },
+        getUserByTokenHandler
+    )
+
+    server.get(
+        '/:id',
+        {
+            schema:{
+                summary: 'Get one user by id',
+                tags: ['User'],
+                // response: {
+                //     200: $ref('userAllResponseSchema')
+                // }
             },
             preHandler: [server.authenticate]
         },
@@ -44,6 +65,61 @@ export async function userRoutes(server: FastifyInstance) {
         },
         changePasswordHandler
     )
+
+    server.put(
+        '/:id',
+        {
+            schema:{
+                summary: 'Update user',
+                tags: ['User'],
+                body: $ref('updateUserSchema'),
+                // response: {
+                //     200: $ref('createUserResponseSchema')
+                // }
+            },
+            preHandler: [server.authenticate]
+        },
+        updateUserHandler
+    )
+
+    server.delete(
+        '/:id',
+        {
+            schema:{
+                summary: 'Delete user',
+                tags: ['User'],
+            },
+            preHandler: [server.authenticate]
+        },
+        deleteUserHandler
+    )
+
+    server.put(
+        '/:id/unit',
+        {
+            schema:{
+                summary: 'Connect user to unit',
+                tags: ['User'],
+                body: $ref('connectUserUnitSchema'),
+            },
+            preHandler: [server.authenticate]
+        },
+        connectUnitHandler
+    )
+
+    server.delete(
+        '/:id/unit',
+        {
+            schema:{
+                summary: 'Disconnect user from unit',
+                tags: ['User'],
+                body: $ref('disconnectUserUnitSchema'),
+            },
+            preHandler: [server.authenticate]
+        },
+        disconnectUnitHandler
+    )
+
 }
 
 export async function authRoutes(server: FastifyInstance) {
@@ -54,9 +130,9 @@ export async function authRoutes(server: FastifyInstance) {
                 summary: 'Register user',
                 tags: ['Auth'],
                 body: $ref('createUserSchema'),
-                response: {
-                    201: $ref('createUserResponseSchema'),
-                },
+                // response: {
+                //     201: $ref('createUserResponseSchema'),
+                // },
             },
         },
         registerUserHandler,

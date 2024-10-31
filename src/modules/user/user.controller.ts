@@ -1,8 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { ChangePasswordInput, CreateUserInput } from "./user.schema";
+import { ChangePasswordInput, ConnectUserUnitInput, CreateUserInput, UpdateUserInput } from "./user.schema";
 import { errorFilter } from "../../middlewares/error-handling";
-import UserRepository from "./user.repository";
-import { verifyPassword } from "../../utils/hash";
 import UserService from "./user.service";
 
 export async function registerUserHandler(
@@ -11,12 +9,16 @@ export async function registerUserHandler(
     }>,
     reply: FastifyReply
 ) {
-    
+
     const body = request.body;
 
     try {
         const user = await UserService.createUser(body)
-        reply.code(201).send(user);
+        reply.code(201).send({
+            data: user,
+            message: "User created successfully",
+            status: "success"
+        });
     } catch (e) {
         errorFilter(e, reply);
     }
@@ -28,52 +30,38 @@ export async function loginUserHandler(
     }>,
     reply: FastifyReply
 ) {
-        
+    try {
         const body = request.body;
-    
-        try {
-            const user = await UserRepository.FindByUsername(body.username);
-            if (!user) {
-                return reply.status(401).send({
-                    message: "Invalid username. Try again!"
-                });
-            };
-        
-            const isValidPassword = verifyPassword({
-                candidatePassword: body.password,
-                salt: user.salt,
-                hash: user.password
-            });
-        
-            if (!isValidPassword) {
-                return reply.status(401).send({
-                    message: "Password is incorrect"
-                });
-            };
-        
-            const payload = {
-                id: user.id,
-                username: user.username,
-            }
-            const token = request.jwt.sign(payload);
-        
-            reply.setCookie('access_token', token, {
-                path: '/',
-                maxAge: 1000 * 60 * 60 * 24 * 7,    // for a week
-                httpOnly: true,
-                secure: true,
-            })
-        
-            return { accessToken: token }
-        } catch (e) {
-            errorFilter(e, reply);
+        const payload = await UserService.LoginUser(body.username, body.password)
+        const token = request.jwt.sign(payload);
+
+        reply.setCookie('access_token', token, {
+            path: '/',
+            maxAge: 1000 * 60 * 60 * 24 * 7,    // for a week
+            httpOnly: true,
+            secure: true,
+        })
+
+        return { accessToken: token }
+    } catch (e) {
+        if (e instanceof Error) {
+            return reply.status(400).send({ message: e.message })
         }
+        errorFilter(e, reply);
+    }
 }
 
-export async function logoutHandler(request: FastifyRequest, reply: FastifyReply) {
+export async function logoutHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+) {
     reply.clearCookie('access_token');
 
-    return reply.status(201).send({ message: 'Logout successfully' })
+    return reply.status(201).send({ 
+        message: 'Logged out successfully',
+        status: 'success',
+        data: []
+     })
 }
 
 export async function getAllUserHandler(
@@ -81,20 +69,47 @@ export async function getAllUserHandler(
     reply: FastifyReply
 ) {
     try {
-        const users = await UserService.getAllUsers()
-        return users;
+        const users = await UserService.getAllUsers(request.user.id)
+        reply.send({
+            data: users,
+            message: "Users fetched successfully",
+            status: "success"
+        })
     } catch (e) {
         errorFilter(e, reply);
     }
 }
 
-export async function getUserByIdHandler(
+export async function getUserByTokenHandler(
     request: FastifyRequest,
     reply: FastifyReply
 ) {
     try {
         const user = await UserService.getUserById(request.user.id)
-        return user;
+        reply.send({
+            data: user,
+            message: "User fetched successfully",
+            status: "success"
+        })
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+export async function getUserByIdHandler(
+    request: FastifyRequest<{
+        Params: {
+            id: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const user = await UserService.getUserById(request.params.id)
+        reply.send({
+            data: user,
+            message: "User fetched successfully",
+            status: "success"
+        })
     } catch (e) {
         errorFilter(e, reply);
     }
@@ -108,8 +123,101 @@ export async function changePasswordHandler(
 ) {
     try {
         await UserService.changePassword(request.user.id, request.body.newPassword, request.body.oldPassword)
-        return { message: 'Password updated' }
+        reply.send({
+            message: "Password changed successfully",
+            status: "success",
+            data: []
+        })
+    } catch (e: any) {
+        if (e.message === 'Password is incorrect') {
+            return reply.status(401).send({ message: 'Password is incorrect' })
+        }
+        errorFilter(e, reply);
+    }
+}
+
+export async function updateUserHandler(
+    request: FastifyRequest<{
+        Body: UpdateUserInput,
+        Params: {
+            id: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const body = request.body;
+        const user = await UserService.updateUser(request.params.id, body)
+        reply.send({
+            data: user,
+            message: "User updated successfully",
+            status: "success"
+        })
     } catch (e) {
         errorFilter(e, reply);
     }
 }
+
+export async function deleteUserHandler(
+    request: FastifyRequest<{
+        Params: {
+            id: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        await UserService.deleteUser(request.params.id)
+        reply.send({
+            message: "User deleted successfully",
+            status: "success",
+            data: []
+        })
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+
+export async function connectUnitHandler(
+    request: FastifyRequest<{
+        Body: ConnectUserUnitInput,
+        Params: {
+            id: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        await UserService.connectUserUnitAndSubUnit(request.params.id, request.body.unitIds)
+        reply.send({
+            message: "Unit connected successfully",
+            status: "success",
+            data: []
+        })
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+
+
+export async function disconnectUnitHandler(
+    request: FastifyRequest<{
+        Body: ConnectUserUnitInput,
+        Params: {
+            id: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        await UserService.disconnectUserUnitAndSubUnit(request.params.id, request.body.unitIds)
+        reply.send({
+            message: "Unit disconnected successfully",
+            status: "success",
+            data: []
+        })
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+

@@ -1,21 +1,22 @@
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify'
 import fjwt from '@fastify/jwt'
 import fCookie from '@fastify/cookie'
-import { userSchema } from './modules/user/user.schema'
 import { UserPayload } from './global'
-import pino from 'pino'
-import ukRoutes from './modules/unit-kerja/uk.route'
-import { unitKerjaSchema } from './modules/unit-kerja/uk.schema'
-import { authRoutes, userRoutes } from './modules/user/user.route'
+import cors from '@fastify/cors'
+import { serverRoutes } from './routes'
+import { db } from './config/prisma'
 
-const server = Fastify({
-    
-})
+const server = Fastify({})
 
 server.register(import("@fastify/swagger"));
 server.register(import("@fastify/swagger-ui"), {
-  prefix: "/docs",
+    prefix: "/docs",
 });
+
+server.register(cors, {
+    origin: ['http://localhost:3000'],
+    credentials: true,
+})
 
 server.ready(err => {
     if (err) throw err
@@ -29,14 +30,26 @@ server.register(fjwt, {
 server.decorate(
     'authenticate',
     async (request: FastifyRequest, reply: FastifyReply) => {
-        const token = request.cookies.access_token;
+        const token = request.cookies?.access_token
+        const authHeader = request.headers.authorization
 
-        if (!token) {
+        if (!token && !authHeader) {
             return reply.status(401).send({ message: 'Authentication required' })
         }
 
-        const decoded = request.jwt.verify(token)
-        request.user = decoded as UserPayload;
+        const jwtToken = token || authHeader?.split(' ')[1]
+
+        if (!jwtToken) {
+            return reply.status(401).send({ message: 'Invalid token' })
+        }
+
+        try {
+            const decoded = request.jwt.verify(jwtToken) as UserPayload
+            request.user = decoded
+        } catch (e) {
+            return reply.status(401).send({ message: 'Invalid or expired token' })
+        }
+
     }
 );
 
@@ -55,13 +68,7 @@ server.get('/', async (request, reply) => {
 })
 
 async function start() {
-    for (const schema of [...userSchema, ...unitKerjaSchema]) {
-        server.addSchema(schema)
-    }
-
-    server.register(authRoutes, { prefix: 'api/v1/auth' })
-    server.register(userRoutes, { prefix: 'api/v1/users' })
-    server.register(ukRoutes, { prefix: 'api/v1/unit-kerja' })
+    serverRoutes(server)
 
     try {
         await server.listen({ port: 5000, host: '0.0.0.0' })

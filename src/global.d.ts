@@ -8,9 +8,25 @@ declare module 'fastify' {
         authenticate: any
     }
 }
+
+type Permission = {
+    id: string;
+    name: string;
+    description: string;
+  };
+  
+  type Role = {
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    permissions: Permission[];
+  };
+
 export type UserPayload = {
     id: string
     username: string
+    role: Role
 }
 declare module '@fastify/jwt' {
     interface FastifyJWT {
