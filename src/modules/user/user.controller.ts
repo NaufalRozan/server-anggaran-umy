@@ -58,7 +58,12 @@ export async function logoutHandler(
     request: FastifyRequest,
     reply: FastifyReply
 ) {
-    reply.clearCookie('access_token');
+    reply.clearCookie('access_token', {
+        path: '/',
+        domain: '.iqbalalhabib.com',
+        httpOnly: true,
+        secure: true
+    });
 
     return reply.status(201).send({ 
         message: 'Logged out successfully',
