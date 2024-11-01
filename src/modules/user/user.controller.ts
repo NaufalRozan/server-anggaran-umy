@@ -33,10 +33,13 @@ export async function loginUserHandler(
     try {
         const body = request.body;
         const payload = await UserService.LoginUser(body.username, body.password)
-        const token = request.jwt.sign(payload);
+        const token = request.jwt.sign(payload, {
+            expiresIn: 1000 * 60 * 60 * 24 * 7
+        });
 
         reply.setCookie('access_token', token, {
             path: '/',
+            domain: '.iqbalalhabib.com',
             maxAge: 1000 * 60 * 60 * 24 * 7,    // for a week
             httpOnly: true,
             secure: true,
