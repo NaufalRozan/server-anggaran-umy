@@ -5,9 +5,7 @@ const createBidangSchema = z.object({
     name: z.string({
         required_error: "Nama Bidang harus diisi"
     }),
-    code: z.string({
-        required_error: "Kode Bidang harus diisi"
-    }),
+    code: z.string().optional(),
 })
 
 export type CreateBidangInput = z.infer<typeof createBidangSchema>;

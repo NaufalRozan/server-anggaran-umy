@@ -35,8 +35,7 @@ model User {
 model Bidang {
   id          String   @id @default(cuid())
   name        String
-  code        String
-  units       Unit[]
+  code        String   @unique
   kpi         kpi[]
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -66,24 +65,38 @@ model Permission {
   @@map("permissions")
 }
 
-model Unit {
-  id          String        @id @default(cuid())
-  name        String
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
-  createdById String?       @map("created_by_id")
-  bidangId    String?
-  isUnit      Boolean       @default(true) @map("is_unit")
-  users       User[]
-  VisiMisi    VisiMisi[]
-  rekening    Rekening[]
-  DataUnit    DataUnit[]
-  DataSubUnit DataSubUnit[]
+model CategoryUnit {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  kpi       kpi[]    @relation("PrimaryPic")
+  Unit      Unit[]
 
-  created_by    User?   @relation("UnitCreatedBy", fields: [createdById], references: [id])
-  Bidang        Bidang? @relation(fields: [bidangId], references: [id])
-  primary_kpi   kpi[]   @relation("PrimaryPic")
-  secondary_kpi kpi[]   @relation("SecondaryPic")
+  @@map("category_unit")
+}
+
+model Unit {
+  id           String         @id @default(cuid())
+  name         String
+  categoryId   String?        @map("category_id")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  createdById  String?        @map("created_by_id")
+  isUnit       Boolean        @default(true) @map("is_unit")
+  users        User[]
+  VisiMisi     VisiMisi[]
+  rekening     Rekening[]
+  DataUnit     DataUnit[]
+  DataSubUnit  DataSubUnit[]
+  PaguAnggaran PaguAnggaran[]
+
+  created_by    User?         @relation("UnitCreatedBy", fields: [createdById], references: [id])
+  category_unit CategoryUnit? @relation(fields: [categoryId], references: [id])
+  secondary_kpi kpi[]         @relation("SecondaryPic")
+  Review        Review[]
+  MaOnKpi       MaOnKpi[]
+  Jadwal        Jadwal?
 
   @@map("units")
 }
@@ -116,7 +129,7 @@ model DataSubUnit {
 model VisiMisi {
   id         String  @id @default(cuid())
   unitId     String? @map("unit_id")
-  tahun      String
+  tahun      String  @unique
   visi       String
   misi       String
   tujuan     String
@@ -136,13 +149,14 @@ model VisiMisi {
 model kpi {
   id               String    @id @default(cuid())
   bidangId         String    @map("bidang_id")
-  kpiCode          String    @map("kpi_code")
+  kpiCode          String    @unique @map("kpi_code")
   name             String
   sifat            String
   standard         String?
   baseline         String?
   target           String?
-  year             String
+  active           Boolean   @default(true)
+  tahun            String
   primary_pic_id   String    @map("primary_pic_id")
   secondary_pic_id String?   @map("secondary_pic_id")
   MaOnKpi          MaOnKpi[]
@@ -151,11 +165,11 @@ model kpi {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  createdById   String? @map("created_by_id")
-  created_by    User?   @relation("PerformanceIndicatorCreatedBy", fields: [createdById], references: [id])
-  primary_pic   Unit    @relation("PrimaryPic", fields: [primary_pic_id], references: [id])
-  secondary_pic Unit?   @relation("SecondaryPic", fields: [secondary_pic_id], references: [id])
-  bidang        Bidang? @relation(fields: [bidangId], references: [id])
+  createdById   String?      @map("created_by_id")
+  created_by    User?        @relation("PerformanceIndicatorCreatedBy", fields: [createdById], references: [id])
+  primary_pic   CategoryUnit @relation("PrimaryPic", fields: [primary_pic_id], references: [id])
+  secondary_pic Unit?        @relation("SecondaryPic", fields: [secondary_pic_id], references: [id])
+  bidang        Bidang?      @relation(fields: [bidangId], references: [id], onDelete: Cascade)
 
   @@map("indikator_kinerja")
 }
@@ -179,6 +193,7 @@ model MaOnKpi {
   id          String      @id @default(cuid())
   kpiId       String      @map("kpi_id")
   maId        String      @map("ma_id")
+  unitId      String      @map("unit_id")
   uraian      String
   output      String
   startDate   DateTime    @map("start_date")
@@ -189,8 +204,10 @@ model MaOnKpi {
   created_by  User?       @relation("MaOnKpiCreatedBy", fields: [createdById], references: [id])
   Pembelian   Pembelian[]
 
-  KPI kpi @relation(fields: [kpiId], references: [id], onDelete: Cascade)
-  MA  ma  @relation(fields: [maId], references: [id], onDelete: Cascade)
+  KPI           kpi            @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+  MA            ma             @relation(fields: [maId], references: [id], onDelete: Cascade)
+  Unit          Unit           @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  ReviewProgram ReviewProgram?
 
   @@map("_maonkpi")
 }
@@ -212,6 +229,7 @@ model Rekening {
 
 model JenisRekening {
   id        String     @id @default(cuid())
+  code      String     @unique
   name      String
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -221,16 +239,83 @@ model JenisRekening {
 }
 
 model Pembelian {
-  id         String   @id @default(cuid())
-  rekeningId String   @map("rekening_id")
-  prokerId   String   @map("proker_id")
-  uraian     String
-  satuan     String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(cuid())
+  rekeningId  String   @map("rekening_id")
+  prokerId    String   @map("proker_id")
+  paguId      String   @map("pagu_id")
+  uraian      String
+  satuan      String
+  nilaiSatuan Int      @map("nilai_satuan")
+  kuantitas   String
+  jumlah      Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  rekening        Rekening @relation(fields: [rekeningId], references: [id])
-  ma_to_indicator MaOnKpi  @relation(fields: [prokerId], references: [id])
+  rekening        Rekening     @relation(fields: [rekeningId], references: [id])
+  ma_to_indicator MaOnKpi      @relation(fields: [prokerId], references: [id])
+  pagu            PaguAnggaran @relation(fields: [paguId], references: [id])
 
   @@map("pembelian")
+}
+
+model Jadwal {
+  id        String    @id @default(cuid())
+  unitId    String    @unique @map("unit_id")
+  name      String?
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit Unit @relation(fields: [unitId], references: [id])
+
+  @@map("jadwal")
+}
+
+model PaguAnggaran {
+  id       String @id @default(cuid())
+  pagu     Int
+  terpakai Int?   @default(0)
+  tahun    String
+  unitId   String @map("unit_id")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit      Unit        @relation(fields: [unitId], references: [id])
+  Pembelian Pembelian[]
+
+  @@unique([tahun, unitId])
+  @@map("pagu_anggaran")
+}
+
+model Review {
+  id             String   @id @default(cuid())
+  tahun          String   @unique
+  unitId         String   @map("unit_id")
+  reviewUmum     String?  @map("review_umum")
+  tanggapanAkhir String?  @map("tanggapan_akhir")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  unit Unit @relation(fields: [unitId], references: [id])
+
+  @@map("review")
+}
+
+model ReviewProgram {
+  id          String   @id @default(cuid())
+  prokerId    String   @unique @map("proker_id")
+  temuan      String?
+  saran       String?
+  tanggapan   String?
+  reviewAkhir String?  @map("review_akhir")
+  rekomendasi String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  proker MaOnKpi @relation(fields: [prokerId], references: [id])
+
+  @@map("review_program")
 }

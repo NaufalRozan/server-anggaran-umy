@@ -22,11 +22,20 @@ export async function createMaHandler(
 }
 
 export async function findAllMaHandler(
-    request: FastifyRequest,
+    request: FastifyRequest<{
+        Querystring: {
+            year: string
+            indicatorId: string
+        }
+    }>,
     reply: FastifyReply
 ) {
     try {
-        const ma = await MaService.findAllMa()
+        const indicatorId = request.query.indicatorId === "all" ? undefined : request.query.indicatorId
+        const ma = await MaService.findAllMa(
+            request.query.year,
+            indicatorId
+        )
         reply.send({
             data: ma,
             message: "MA Fetched Successfully",
@@ -134,17 +143,22 @@ export async function createMatoIndicatorHandler(
 export async function findMatoIndicatorHandler(
     request: FastifyRequest<{
         Params: {
-            kpiId: string
+            kpiId: string,
+            unitId: string
         }
     }>,
     reply: FastifyReply
 ) {
     try {
-        const ma = await MaService.findMatoIndicator(request.params.kpiId)
+        const ma = await MaService.findMatoIndicator(request.params.kpiId, request.params.unitId)
         reply.send({
-            data: ma,
+            data: ma.proker,
             message: "MA to Indicator Fetched Successfully",
-            status: "success"
+            status: "success",
+            meta: {
+                kpi: ma.kpi,
+                pagu: ma.pagu
+            }
         })
     } catch (error) {
         errorFilter(error, reply)
@@ -162,9 +176,14 @@ export async function findOneMatoIndicatorHandler(
     try {
         const ma = await MaService.findOneMatoIndicator(request.params.id)
         reply.send({
-            data: ma,
+            data: ma.proker,
             message: "MA to Indicator Fetched Successfully",
-            status: "success"
+            status: "success",
+            meta: {
+                kpi: ma.kpi,
+                ma: ma.ma,
+                pagu: ma.pagu
+            }
         })
     } catch (error) {
         errorFilter(error, reply)

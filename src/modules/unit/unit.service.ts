@@ -23,6 +23,25 @@ class UnitService {
         return UnitRepository.Delete(id)
     }
 
+    static async createCategoryUnit(categoryUnitData: CreateUnitInput) {
+        return UnitRepository.InsertCategoryUnit(categoryUnitData)
+    }
+
+    static async getAllCategoryUnit() {
+        return UnitRepository.FindAllCategoryUnit()
+    }
+
+    static async getCategoryUnitById(id: string) {
+        return UnitRepository.FindOneCategoryUnit(id)
+    }
+
+    static async updateCategoryUnit(id: string, categoryUnitData: CreateUnitInput) {
+        return UnitRepository.UpdateCategoryUnit(id, categoryUnitData)
+    }
+
+    static async deleteCategoryUnit(id: string) {
+        return UnitRepository.DeleteCategoryUnit(id)
+    }
 }
 
 export default UnitService

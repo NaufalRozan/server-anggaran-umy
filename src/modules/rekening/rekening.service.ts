@@ -8,8 +8,8 @@ class RekeningService {
     ) {
         return RekeningRepository.Insert(
             rekeningData.name,
-            rekeningData.noRek,
             rekeningData.jenisId,
+            rekeningData.noRek,
             rekeningData.units,
             creatorId ?? undefined
         )
@@ -31,8 +31,8 @@ class RekeningService {
         return RekeningRepository.Update(
             id,
             rekeningData.name,
-            rekeningData.noRek,
             rekeningData.jenisId,
+            rekeningData.noRek,
             rekeningData.units,
         )
     }

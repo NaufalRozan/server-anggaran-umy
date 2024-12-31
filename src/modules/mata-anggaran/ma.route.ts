@@ -86,7 +86,7 @@ export async function matoIndicatorRoutes(server: FastifyInstance) {
     )
 
     server.get(
-        "/:kpiId",
+        "/:kpiId/unit/:unitId",
         {
             schema: {
                 tags: ["Mata Anggaran to Indicator"],

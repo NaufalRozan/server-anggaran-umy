@@ -9,7 +9,7 @@ class VmRepository {
                 misi,
                 tujuan,
                 keterangan,
-                tahun,
+                tahun: tahun,
                 createdById,
                 unitId
             }
@@ -76,7 +76,7 @@ class VmRepository {
                 misi,
                 tujuan,
                 keterangan,
-                tahun,
+                tahun: tahun,
                 unitId
             }
         })

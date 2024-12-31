@@ -2,9 +2,7 @@ import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 const createRekeningSchema = z.object({
-    noRek: z.string({
-        required_error: "Kode MA harus diisi"
-    }),
+    noRek: z.string().optional(),
     name: z.string({
         required_error: "Nama MA harus diisi"
     }),

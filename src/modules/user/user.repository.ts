@@ -1,18 +1,21 @@
 import { db } from "../../config/prisma";
 
 class UserRepository {
-    static async Insert(username: string, password: string, salt: string, roleId?: string, unitId?: string) {
+    static async Insert(username: string, password: string, salt: string, roleId?: string, unitIds?: string[]) {
         return db.user.create({
             data: {
                 username,
                 password,
                 salt,
                 roleId: roleId ?? null,
+                unit: {
+                    connect: unitIds?.map(id => ({ id }))
+                }
             }
         })
     }
 
-    static async ConnectUnitAndSubUnit(userId: string, unitIds: string[]){
+    static async ConnectUnitAndSubUnit(userId: string, unitIds: string[]) {
         return db.user.update({
             where: {
                 id: userId
@@ -26,7 +29,7 @@ class UserRepository {
     }
 
 
-    static async DisconnectUnitAndSubUnit(userId: string, unitIds: string[]){
+    static async DisconnectUnitAndSubUnit(userId: string, unitIds: string[]) {
         return db.user.update({
             where: {
                 id: userId
@@ -44,13 +47,18 @@ class UserRepository {
             where: {
                 username
             },
-            include: {
+            select: {
+                id: true,
+                username: true,
+                unit: true,
+                salt: true,
+                password: true,
                 role: {
                     include: {
                         permissions: true
                     }
                 }
-            }
+            },
         })
     }
 
@@ -59,38 +67,53 @@ class UserRepository {
             where: {
                 id
             },
-            include: {
-                unit: true,
+            select: {
+                id: true,
+                username: true,
+                unit: {
+                    include: {
+                        Jadwal: true
+                    }
+                },
+                salt: true,
+                password: true,
                 role: {
                     include: {
                         permissions: true
                     }
-                }
-            }
+                },
+            },
         })
     }
 
     static async FindAll() {
         return db.user.findMany({
-            include: {
+            select: {
+                id: true,
+                username: true,
                 unit: true,
                 role: {
                     include: {
                         permissions: true
                     }
-                }
-            }
+                },
+                createdAt: true,
+                updatedAt: true
+            },
         });
     }
 
-    static async Update(id: string, username: string, roleId?: string, unitId?: string, subUnitId?: string) {
+    static async Update(id: string, username: string, roleId?: string, unitIds?: string[]) {
         return db.user.update({
             where: {
                 id
             },
             data: {
                 username,
-                roleId
+                roleId,
+                unit: {
+                    set: unitIds?.map(id => ({ id }))
+                }
             }
         })
     }

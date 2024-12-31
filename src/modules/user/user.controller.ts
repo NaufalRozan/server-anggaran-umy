@@ -39,7 +39,7 @@ export async function loginUserHandler(
 
         reply.setCookie('access_token', token, {
             path: '/',
-            domain: '.iqbalalhabib.com',
+            // domain: '.iqbalalhabib.com',
             maxAge: 1000 * 60 * 60 * 24 * 7,    // for a week
             httpOnly: true,
             secure: true,
@@ -60,7 +60,7 @@ export async function logoutHandler(
 ) {
     reply.clearCookie('access_token', {
         path: '/',
-        domain: '.iqbalalhabib.com',
+        // domain: '.iqbalalhabib.com',
         httpOnly: true,
         secure: true
     });

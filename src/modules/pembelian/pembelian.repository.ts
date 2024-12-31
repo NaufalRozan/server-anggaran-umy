@@ -7,6 +7,10 @@ class PembelianRepository {
         prokerId: string,
         uraian: string,
         satuan: string,
+        jumlah: number,
+        nilaiSatuan: number,
+        kuantitas: string,
+        paguId: string,
         creatorId?: string,
     ) {
         return db.pembelian.create({
@@ -15,12 +19,22 @@ class PembelianRepository {
                 prokerId,
                 uraian,
                 satuan,
+                jumlah,
+                nilaiSatuan,
+                kuantitas,
+                paguId,
             }
         })
     }
 
     static async FindAll() {
-        return db.pembelian.findMany()
+        return db.pembelian.findMany({
+            include: {
+                rekening: true,
+                pagu: true,
+                ma_to_indicator: true
+            }
+        })
     }
 
     static async FindByMaId(prokerId: string) {
@@ -41,6 +55,9 @@ class PembelianRepository {
         prokerId: string,
         uraian: string,
         satuan: string,
+        jumlah: number,
+        nilaiSatuan: number,
+        kuantitas: string,
     ) {
         return db.pembelian.update({
             where: { id },
@@ -49,6 +66,9 @@ class PembelianRepository {
                 prokerId,
                 uraian,
                 satuan,
+                jumlah,
+                nilaiSatuan,
+                kuantitas,
             }
         })
     }

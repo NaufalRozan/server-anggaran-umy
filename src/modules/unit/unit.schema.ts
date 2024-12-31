@@ -3,11 +3,15 @@ import { z } from "zod";
 
 const createUnitSchema = z.object({
     name: z.string({
-        required_error: 'Name faculty is required',
+        required_error: 'Name Unit is required',
     }),
-    bidangId: z.string({
-        required_error: 'Bidang is required',
-    }),
+    categoryId: z.string().optional(),
+})
+
+const createCategoryUnitSchema = z.object({
+    name: z.string({
+        required_error: 'Name Category Unit is required',
+    })
 })
 
 export const unitResponseSchema = z.object({
@@ -18,11 +22,20 @@ export const unitResponseSchema = z.object({
 })
 
 export type CreateUnitInput = z.infer<typeof createUnitSchema>;
+export type CreateCategoryUnitInput = z.infer<typeof createCategoryUnitSchema>;
 
 export const { schemas: unitSchema, $ref } = buildJsonSchemas({
     createUnitSchema: createUnitSchema,
     unitResponseSchema: unitResponseSchema,
+    createCategoryUnitSchema: createCategoryUnitSchema,
 },
 {
     $id: 'unitSchema',
-}) 
+})
+
+export const { schemas: categoryUnitSchema } = buildJsonSchemas({
+    createCategoryUnitSchema: createCategoryUnitSchema,
+},
+{
+    $id: 'categoryUnitSchema',
+})

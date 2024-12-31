@@ -1,25 +1,52 @@
 import { db } from "../../config/prisma";
 
 class MaRepository {
+    static async getNextMACode(indicatorId: string) {
+        const lastVariant = await db.ma.findFirst({
+            where: { indicatorId: indicatorId },
+            orderBy: { maCode: 'desc' }
+        });
+
+        if (!lastVariant) return "01";
+
+        // Extract the variant number after the dot
+        const lastNumber = parseInt(lastVariant.maCode.split('.')[2]);
+        return String(lastNumber + 1).padStart(2, '0');
+    }
+
     static async Insert(
         name: string,
-        maCode: string,
         indicatorId: string,
+        maCode?: string,
         creatorId?: string,
     ) {
-        return db.ma.create({
-            data: {
-                name,
-                maCode,
-                indicatorId,
-                createdById: creatorId
+        return db.$transaction(async (tx) => {
+            const indicator = await tx.kpi.findUnique({
+                where: { id: indicatorId }
+            });
+
+            if (!indicator) {
+                throw new Error("Indikator tidak ditemukan");
             }
+
+            const nextCode = await this.getNextMACode(indicatorId);
+            const fullCode = `${indicator.kpiCode}.${nextCode}`;
+
+            return tx.ma.create({
+                data: {
+                    name,
+                    maCode: fullCode,
+                    indicatorId,
+                    createdById: creatorId
+                }
+            })
         })
     }
 
     static async InsertMatoIndicator(
         maId: string,
         kpiId: string,
+        unitId: string,
         uraian: string,
         output: string,
         dateRange: {
@@ -32,6 +59,7 @@ class MaRepository {
             data: {
                 maId,
                 kpiId,
+                unitId,
                 uraian,
                 output,
                 startDate: dateRange.from,
@@ -41,23 +69,42 @@ class MaRepository {
         })
     }
 
-    static async FindAll() {
+    static async FindAll(
+        year?: string,
+        indicatorId?: string
+    ) {
         return db.ma.findMany({
+            where: {
+                indicator: {
+                    id: indicatorId,
+                    tahun: year
+                }
+            },
             include: {
+                indicator: {
+                    select: {
+                        tahun: true,
+                        name: true
+                    }
+                }
             }
         })
     }
 
     static async FindMatoIndicator(
         kpiId: string,
+        unitId: string
     ) {
         return db.maOnKpi.findMany({
             where: {
                 kpiId,
+                unitId,
             },
             include: {
                 KPI: true,
-                MA: true
+                MA: true,
+                Pembelian: true,
+                ReviewProgram: true,
             }
         })
     }
@@ -72,7 +119,9 @@ class MaRepository {
                 MA: true,
                 Pembelian: {
                     include: {
-                        rekening: true
+                        rekening: true,
+                        pagu: true,
+                        ma_to_indicator: true
                     }
                 },
             }
@@ -85,6 +134,7 @@ class MaRepository {
                 id
             },
             include: {
+                
             }
         })
     }
@@ -103,8 +153,8 @@ class MaRepository {
     static async Update(
         id: string,
         name: string,
-        maCode: string,
-        indicatorId: string
+        indicatorId: string,
+        maCode?: string,
     ) {
         return db.ma.update({
             where: {

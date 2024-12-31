@@ -41,6 +41,7 @@ class UserService {
             hash,
             salt,
             input.roleId,
+            input.unitIds
         );
 
         return user;
@@ -103,6 +104,7 @@ class UserService {
             userId,
             username,
             roleId ?? undefined,
+            input.unitIds
         );
     }
 

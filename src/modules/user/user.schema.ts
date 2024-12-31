@@ -10,12 +10,18 @@ const createUserSchema = z.object({
         required_error: 'Password is required',
     }).min(6),
     roleId: z.string().optional(),
+    unitIds: z.array(z.string({
+        required_error: 'Unit ID is required',
+    })).optional(),
 })
 
 const updateUserSchema = z.object({
     username: z.string({
         required_error: 'Username is required',
     }).min(1),
+    unitIds: z.array(z.string({
+        required_error: 'Unit ID is required',
+    })).optional(),
     roleId: z.string().nullable().optional(),
 })
 

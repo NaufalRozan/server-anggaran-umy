@@ -15,6 +15,15 @@ const createPembelianSchema = z.object({
     satuan: z.string({
         required_error: "Satuan harus diisi"
     }),
+    jumlah: z.number({
+        required_error: "Jumlah harus diisi"
+    }),
+    nilaiSatuan: z.number({
+        required_error: "Nilai Satuan harus diisi"
+    }),
+    kuantitas: z.string({
+        required_error: "Kuantitas harus diisi"
+    }),
 })
 
 export type CreatePembelianInput = z.infer<typeof createPembelianSchema>;

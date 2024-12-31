@@ -29,6 +29,8 @@ class BidangService {
     }
 
     static async deleteBidang(id: string) {
+        const bidang = await BidangRepository.FindOne(id)
+        console.log(bidang)
         return BidangRepository.Delete(id)
     }
 }

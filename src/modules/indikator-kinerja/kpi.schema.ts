@@ -3,9 +3,7 @@ import { z } from "zod";
 
 
 const createKpiSchema = z.object({
-    kpiCode: z.string({
-        required_error: "Kode KPI harus diisi"
-    }),
+    kpiCode: z.string().optional(),
     name: z.string({
         required_error: "Nama KPI harus diisi"
     }),

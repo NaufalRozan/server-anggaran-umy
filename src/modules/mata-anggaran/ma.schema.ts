@@ -2,9 +2,7 @@ import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 const createMaSchema = z.object({
-    maCode: z.string({
-        required_error: "Kode MA harus diisi"
-    }),
+    maCode: z.string().optional(),
     name: z.string({
         required_error: "Nama MA harus diisi"
     }),
@@ -19,6 +17,9 @@ const createMatoIndicatorSchema = z.object({
     }),
     maId: z.string({
         required_error: "MA ID harus diisi"
+    }),
+    unitId: z.string({
+        required_error: "Unit ID harus diisi"
     }),
     uraian: z.string({
         required_error: "Uraian harus diisi"

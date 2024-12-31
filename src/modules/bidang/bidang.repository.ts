@@ -2,23 +2,47 @@ import { db } from "../../config/prisma";
 import { CreateBidangInput } from "./bidang.schema";
 
 class BidangRepository {
+    static async getNextBidangCode() {
+        const lastProduct = await db.bidang.findFirst({
+            orderBy: { code: 'desc' }
+        });
+
+        if (!lastProduct) return "01";
+        const lastNumber = parseInt(lastProduct.code);
+        return String(lastNumber + 1).padStart(2, '0');
+    }
+
     static async Insert(
         bidangData: CreateBidangInput,
         creatorId?: string
     ) {
-        return db.bidang.create({
-            data: {
-                name: bidangData.name,
-                code: bidangData.code,
-                createdById: creatorId
+        return await db.$transaction(async (tx) => {
+            const nextCode = await this.getNextBidangCode();
+
+            const existingBidang = await tx.bidang.findUnique({
+                where: {
+                    code: nextCode
+                }
+            })
+
+            if (existingBidang) {
+                throw new Error("Kode Bidang sudah digunakan");
             }
+
+            return await tx.bidang.create({
+                data: {
+                    name: bidangData.name,
+                    code: nextCode,
+                    createdById: creatorId
+                }
+            })
         })
     }
 
     static async FindAll() {
         return db.bidang.findMany({
-            include: {
-                units: true,
+            orderBy: {
+                code: 'asc'
             }
         });
     }
@@ -28,9 +52,6 @@ class BidangRepository {
             where: {
                 id
             },
-            include: {
-                units: true,
-            }
         })
     }
 
