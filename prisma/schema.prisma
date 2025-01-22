@@ -97,6 +97,7 @@ model Unit {
   Review        Review[]
   MaOnKpi       MaOnKpi[]
   Jadwal        Jadwal?
+  Laporan       Laporan[]
 
   @@map("units")
 }
@@ -296,6 +297,7 @@ model Review {
   unitId         String   @map("unit_id")
   reviewUmum     String?  @map("review_umum")
   tanggapanAkhir String?  @map("tanggapan_akhir")
+  reviewUmum2    String?  @map("review_umum2")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -318,4 +320,31 @@ model ReviewProgram {
   proker MaOnKpi @relation(fields: [prokerId], references: [id])
 
   @@map("review_program")
+}
+
+model Laporan {
+  id     String @id @default(cuid())
+  unitId String @map("unit_id")
+  name   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit Unit @relation(fields: [unitId], references: [id])
+}
+
+model File {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  path         String
+  mimetype     String
+  size         Int
+  extension    String
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([filename])
+  @@index([createdAt])
 }

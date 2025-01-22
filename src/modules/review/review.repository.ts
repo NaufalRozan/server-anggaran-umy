@@ -9,8 +9,9 @@ class ReviewRepository {
             data: {
                 tahun: reviewData.tahun,
                 unitId: reviewData.unitId,
-                reviewUmum: reviewData.reviewUmun,
-                tanggapanAkhir: reviewData.tanggapanAkhir
+                reviewUmum: reviewData.reviewUmum,
+                tanggapanAkhir: reviewData.tanggapanAkhir,
+                reviewUmum2: reviewData.reviewUmum2
             }
         })
     }
@@ -27,14 +28,16 @@ class ReviewRepository {
             update: {
                 tahun: reviewData.tahun,
                 unitId: reviewData.unitId,
-                reviewUmum: reviewData.reviewUmun,
+                reviewUmum: reviewData.reviewUmum,
                 tanggapanAkhir: reviewData.tanggapanAkhir,
+                reviewUmum2: reviewData.reviewUmum2
             },
             create: {
                 tahun: reviewData.tahun,
                 unitId: reviewData.unitId,
-                reviewUmum: reviewData.reviewUmun,
+                reviewUmum: reviewData.reviewUmum,
                 tanggapanAkhir: reviewData.tanggapanAkhir,
+                reviewUmum2: reviewData.reviewUmum2
             },
         });
     }
@@ -52,6 +55,7 @@ class ReviewRepository {
                 unitId: true,
                 reviewUmum: true,
                 tanggapanAkhir: true,
+                reviewUmum2: true,
                 unit: true,
                 createdAt: true,
                 updatedAt: true
@@ -70,7 +74,8 @@ class ReviewRepository {
                 tahun: true,
                 unitId: true,
                 reviewUmum: true,
-                tanggapanAkhir: true
+                tanggapanAkhir: true,
+                reviewUmum2: true
             }
         })
     }
@@ -85,7 +90,8 @@ class ReviewRepository {
                 tahun: true,
                 unitId: true,
                 reviewUmum: true,
-                tanggapanAkhir: true
+                tanggapanAkhir: true,
+                reviewUmum2: true
             }
         })
     }
@@ -101,8 +107,9 @@ class ReviewRepository {
             data: {
                 tahun: reviewData.tahun,
                 unitId: reviewData.unitId,
-                reviewUmum: reviewData.reviewUmun,
-                tanggapanAkhir: reviewData.tanggapanAkhir
+                reviewUmum: reviewData.reviewUmum,
+                tanggapanAkhir: reviewData.tanggapanAkhir,
+                reviewUmum2: reviewData.reviewUmum2
             }
         })
     }

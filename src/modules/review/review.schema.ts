@@ -8,12 +8,15 @@ const createReviewSchema = z.object({
     unitId: z.string({
         required_error: "Unit Id is required"
     }),
-    reviewUmun: z.string({
+    reviewUmum: z.string({
         required_error: "Review Umum is required"
     }).optional(),
     tanggapanAkhir: z.string({
         required_error: "Tanggapan Akhir is required"
     }).optional(),  
+    reviewUmum2: z.string({
+        required_error: "Review Umum is required"
+    }).optional(),
 })
 
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;

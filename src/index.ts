@@ -4,7 +4,11 @@ import fCookie from '@fastify/cookie'
 import { UserPayload } from './global'
 import cors from '@fastify/cors'
 import { serverRoutes } from './routes'
-import { db } from './config/prisma'
+import multipart from '@fastify/multipart'
+import staticPlugin from '@fastify/static'
+import path from 'path'
+import fs from 'fs'
+import { streamFileByIDHandler, streamFileByPathHandler } from './modules/test-file/file.controller'
 
 const server = Fastify({})
 
@@ -62,6 +66,28 @@ server.register(fCookie, {
     secret: process.env.COOKIE_SECRET || 'supersecret',
     hook: 'preHandler',
 })
+
+server.register(multipart)
+
+server.get(
+    "/public/:id",
+    {
+        schema: {
+            tags: ["File"],
+        },
+    },
+    streamFileByIDHandler
+);
+
+server.get(
+    "/public/filename/:filename",
+    {
+        schema: {
+            tags: ["File"],
+        },
+    },
+    streamFileByPathHandler
+);
 
 server.get('/', async (request, reply) => {
     return { hello: 'world' }
