@@ -4,7 +4,7 @@ import { errorFilter } from "../../middlewares/error-handling"
 import FileService from "./file.service"
 import path from "path"
 import fs from "fs"
-import { MultipartFile } from "@fastify/multipart"
+import { MultipartFile, MultipartValue } from "@fastify/multipart"
 
 // 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -12,9 +12,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024
 export async function createFileHandler(
     request: FastifyRequest<{
         Body: {
-            id: {
-                value: string
-            }
+            id: MultipartValue<string>
             file: MultipartFile
         }
     }>,
