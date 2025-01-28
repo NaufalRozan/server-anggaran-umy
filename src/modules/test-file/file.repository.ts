@@ -2,10 +2,11 @@ import path from "path";
 import fs from 'fs'
 import { db } from "../../config/prisma";
 import { CreateFileInput } from "./file.schema";
+import { MultipartFile } from "@fastify/multipart";
 
 class FileRepository {
     static async Insert(
-        fileData: CreateFileInput,
+        fileData: MultipartFile,
         uniqueFilename: string,
         filePath: string,
         contentLength: number,
@@ -66,7 +67,7 @@ class FileRepository {
 
     static async Update(
         id: string,
-        fileData: CreateFileInput,
+        fileData: MultipartFile,
         uniqueFilename: string,
         filePath: string,
         contentLength: number,

@@ -5,11 +5,12 @@ import { CreateFileInput } from "./file.schema";
 import { fileToReadable } from "../../utils/Readable";
 import { pipeline } from "stream";
 import util from 'util'
+import { MultipartFile } from "@fastify/multipart";
 const pump = util.promisify(pipeline)
 
 class FileService {
     static async createFile(
-        fileData: CreateFileInput,
+        fileData: MultipartFile,
         contentLength: number,
         creatorId?: string
     ) {
@@ -62,7 +63,7 @@ class FileService {
 
     static async updateFile(
         id: string,
-        fileData: CreateFileInput,
+        fileData: MultipartFile,
         contentLength: number
     ) {
         const fileRecord = await FileRepository.FindOne(id);

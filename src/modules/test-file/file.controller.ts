@@ -11,10 +11,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function createFileHandler(
     request: FastifyRequest<{
-        Body: {
-            id: MultipartValue<string>
-            file: MultipartFile
-        }
+        Body: CreateFileInput
     }>,
     reply: FastifyReply,
 ) {
