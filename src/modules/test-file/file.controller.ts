@@ -27,6 +27,13 @@ export async function createFileHandler(
             });
         }
 
+        if (contentLength > MAX_FILE_SIZE) {
+            return reply.status(400).send({
+                message: "File size too large",
+                status: "error",
+            });
+        }
+
         const file = await FileService.createFile(
             body.file,
             contentLength,
