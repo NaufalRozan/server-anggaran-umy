@@ -33,6 +33,8 @@ import { reviewProgramSchema } from "./modules/review-program/rp.schema";
 import { reviewProgramRoutes } from "./modules/review-program/rp.route";
 import { fileSchema } from "./modules/test-file/file.schema";
 import { fileRoutes } from "./modules/test-file/file.route";
+import { sppSchema } from "./modules/spp/spp.schema";
+import sppRoutes from "./modules/spp/spp.route";
 
 export async function serverRoutes(server: FastifyInstance) {
     for (const schema of [
@@ -53,6 +55,7 @@ export async function serverRoutes(server: FastifyInstance) {
         ...reviewSchema,
         ...reviewProgramSchema,
         ...fileSchema,
+        ...sppSchema,
     ]) {
         server.addSchema(schema)
     }
@@ -78,4 +81,5 @@ export async function serverRoutes(server: FastifyInstance) {
     server.register(reviewRoutes, { prefix: 'api/v1/review' })
     server.register(reviewProgramRoutes, { prefix: 'api/v1/review-program' })
     server.register(fileRoutes, { prefix: 'api/v1/file' })
+    server.register(sppRoutes, { prefix: 'api/v1/spp' })
 }

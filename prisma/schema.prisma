@@ -171,6 +171,7 @@ model kpi {
   primary_pic   CategoryUnit @relation("PrimaryPic", fields: [primary_pic_id], references: [id])
   secondary_pic Unit?        @relation("SecondaryPic", fields: [secondary_pic_id], references: [id])
   bidang        Bidang?      @relation(fields: [bidangId], references: [id], onDelete: Cascade)
+  SPP           SPP?
 
   @@map("indikator_kinerja")
 }
@@ -347,4 +348,37 @@ model File {
 
   @@index([filename])
   @@index([createdAt])
+}
+
+model SPP {
+  id          String   @id @default(cuid())
+  indicatorId String   @unique @map("indicator_id")
+  tahun       String
+  noSpp       String   @map("no_spp")
+  otorisasi   Boolean  @default(false)
+  status      String   @default("Pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  kpi  kpi   @relation(fields: [indicatorId], references: [id], onDelete: Cascade)
+  SPMU SPMU?
+
+  @@map("spp")
+}
+
+model SPMU {
+  id           String    @id @default(cuid())
+  sppId        String    @unique @map("spp_id")
+  tahun        String
+  noSpmu       String    @map("no_spmu")
+  status       String    @default("Pending")
+  tanggal      DateTime?
+  biroApproval Boolean   @default(false) @map("biro_approval")
+  wr2Approval  Boolean   @default(false) @map("wr2_approval")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  spp SPP @relation(fields: [sppId], references: [id], onDelete: Cascade)
+
+  @@map("spmu")
 }

@@ -77,6 +77,21 @@ class KpiRepository {
                 throw new Error("Bidang tidak ditemukan");
             }
 
+            const lastSpp = await db.sPP.findFirst({
+                orderBy: { id: 'desc' }
+            })
+
+            const counter = lastSpp ? lastSpp.noSpp.split('/')[0] : 1
+            const sppNumber = `${counter}/SPP/TI-X/${kpiData.year}`;
+
+            const lastSpmu = await db.sPMU.findFirst({
+                orderBy: { id: 'desc' }
+            })
+
+            const spmuCounter = lastSpmu ? lastSpmu.noSpmu.split('/')[0] : 1
+
+            const spmuNumber = `${spmuCounter}/SPMU/X/${kpiData.year}`;
+
             // const fullCode = await this.generateUniqueKPICode(kpiData.bidangId, tx);
 
             const nextCode = await this.getNextKPICode(kpiData.bidangId);
@@ -95,6 +110,20 @@ class KpiRepository {
                     baseline: kpiData.baseline ?? null,
                     target: kpiData.target ?? null,
                     secondary_pic_id: kpiData.secondaryPICId ?? null,
+
+                    SPP: {
+                        create: {
+                            tahun: kpiData.year,
+                            noSpp: sppNumber,
+
+                            SPMU: {
+                                create: {
+                                    tahun: kpiData.year,
+                                    noSpmu: spmuNumber,
+                                }
+                            }
+                        }
+                    },
                 },
             });
         });

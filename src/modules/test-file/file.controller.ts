@@ -4,36 +4,36 @@ import { errorFilter } from "../../middlewares/error-handling"
 import FileService from "./file.service"
 import path from "path"
 import fs from "fs"
+import { MultipartFile } from "@fastify/multipart"
 
 // 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function createFileHandler(
-    request: FastifyRequest,
+    request: FastifyRequest<{
+        Body: {
+            id: {
+                value: string
+            }
+            file: MultipartFile
+        }
+    }>,
     reply: FastifyReply,
 ) {
     try {
-        const data = await request.file()
+        const body = request.body
+        const contentLength = body.file.file.bytesRead
+        console.log(body.id.value)
 
-        if (!data) {
+        if (!body.file) {
             return reply.status(400).send({
                 message: "No file uploaded",
                 status: "error",
             });
         }
 
-        const contentLength = Number(request.headers['content-length']) || 0;
-
-        if (contentLength > MAX_FILE_SIZE) {
-            return reply.status(400).send({
-                message: 'File size exceeds the maximum allowed size of 5MB',
-                status: 'error',
-            });
-        }
-
-
         const file = await FileService.createFile(
-            data,
+            body.file,
             contentLength,
         )
 

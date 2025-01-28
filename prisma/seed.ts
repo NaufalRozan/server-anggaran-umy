@@ -8,6 +8,7 @@ const permissionNames = [
     'PIMPINAN_UNIT',
     'ASSESOR_AUDIT',
     'ADMIN_UNIT',
+    'ADMIN_KEUANGAN',
 ]
 
 async function main() {

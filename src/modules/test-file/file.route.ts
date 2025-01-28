@@ -1,5 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { createFileHandler, deleteFileHandler, streamFileByIDHandler, findOneFileHandler, streamFileByPathHandler } from "./file.controller";
+import { createFileHandler, deleteFileHandler, streamFileByIDHandler, findOneFileHandler, streamFileByPathHandler, findAllFileHandler } from "./file.controller";
+
+
 
 export async function fileRoutes(server: FastifyInstance) {
     server.post(
@@ -19,7 +21,7 @@ export async function fileRoutes(server: FastifyInstance) {
                 tags: ["File"],
             },
         },
-        createFileHandler
+        findAllFileHandler
     );
 
     server.get(
