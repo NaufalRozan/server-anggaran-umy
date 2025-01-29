@@ -5,6 +5,9 @@ import FileService from "./file.service"
 import path from "path"
 import fs from "fs"
 import { MultipartFile, MultipartValue } from "@fastify/multipart"
+import { pipeline } from "stream";
+import util from 'util'
+const pump = util.promisify(pipeline)
 
 // 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -18,7 +21,6 @@ export async function createFileHandler(
     try {
         const body = request.body
         const contentLength = body.file.file.bytesRead
-        console.log(body.id.value)
 
         if (!body.file) {
             return reply.status(400).send({

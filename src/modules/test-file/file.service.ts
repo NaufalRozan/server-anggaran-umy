@@ -1,12 +1,7 @@
 import path from "path";
 import fs from 'fs'
 import FileRepository from "./file.repository";
-import { CreateFileInput } from "./file.schema";
-import { fileToReadable } from "../../utils/Readable";
-import { pipeline } from "stream";
-import util from 'util'
 import { MultipartFile } from "@fastify/multipart";
-const pump = util.promisify(pipeline)
 
 class FileService {
     static async createFile(
@@ -24,7 +19,11 @@ class FileService {
         const uniqueFilename = `${Date.now()}-${clearFileName}`
         const filePath = path.join(uploadDir, uniqueFilename)
 
-        await pump(fileData.file, fs.createWriteStream(filePath))
+        fs.writeFile(filePath, await fileData.toBuffer(), (err) => {
+            if (err) {
+                throw new Error(err.message)
+            }
+        })
 
         return FileRepository.Insert(
             fileData,
@@ -76,7 +75,11 @@ class FileService {
         const uniqueFilename = `${Date.now()}-${clearFileName}`
         const filePath = path.join(__dirname, '../../public', fileRecord.filename);
 
-        await pump(fileData.file, fs.createWriteStream(filePath))
+        fs.writeFile(filePath, await fileData.toBuffer(), (err) => {
+            if (err) {
+                throw new Error(err.message)
+            }
+        })
 
         return FileRepository.Update(
             id,
