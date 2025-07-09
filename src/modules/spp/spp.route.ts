@@ -1,8 +1,19 @@
 import { FastifyInstance } from "fastify";
-import { getAllSPPHandler, getSPPByIdHandler, updateSPPHandler } from "./spp.controller";
+import { createSPPHandler, getAllSPPHandler, getSPPByIdHandler, getSPPFromUnitHandler, getSPPRekomendasiHandler, updateSPPOtorisasiHandler, updateSPPStatusHandler, updateStatusBiroKeuanganHandler } from "./spp.controller";
 import { $ref } from "./spp.schema";
 
 async function sppRoutes(server: FastifyInstance) {
+    server.post(
+        "/",
+        {
+            schema: {
+                tags: ["SPP"],
+                body: $ref("createSPPSchema"),
+            },
+        },
+        createSPPHandler
+    )
+
     server.get(
         "/",
         {
@@ -23,16 +34,54 @@ async function sppRoutes(server: FastifyInstance) {
         getSPPByIdHandler
     )
 
-    server.put(
-        "/:id",
+    server.get(
+        "/recomended",
         {
             schema: {
                 tags: ["SPP"],
-                body: $ref("createSPPSchema"),
             },
         },
-        updateSPPHandler
+        getSPPRekomendasiHandler
     )
+
+    server.get(
+        "/:unitId/:periodeId/:sppId/:tahun",
+        {
+            schema: {
+                tags: ["SPP"],
+            },
+        },
+        getSPPFromUnitHandler
+    )
+
+    server.put(
+        "/:id/otorisasi",
+        {
+            schema: {
+                tags: ["SPP"],
+            },
+        },
+        updateSPPOtorisasiHandler
+    )
+    server.put(
+        "/:id/status",
+        {
+            schema: {
+                tags: ["SPP"],
+            },
+        },
+        updateSPPStatusHandler
+    )
+    server.put(
+        "/:id/statusbirokeu",
+        {
+            schema: {
+                tags: ["SPP"],
+            },
+        },
+        updateStatusBiroKeuanganHandler
+    )
+
 }
 
 export default sppRoutes;

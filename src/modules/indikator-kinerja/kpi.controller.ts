@@ -100,6 +100,27 @@ export async function findManyKpiByUserIdHandler(
     }
 }
 
+export async function findManyRekomendedHandler(
+    request: FastifyRequest<{
+        Querystring: {
+            year: string
+            unitId: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const kpi = await KpiService.findManyRekomended(request.query.year, request.query.unitId)
+        reply.send({
+            data: kpi,
+            message: "Indicator Fetched Successfully",
+            status: "success"
+        })
+    } catch (error) {
+        errorFilter(error, reply)
+    }
+}
+
 export async function updateKpiHandler(
     request: FastifyRequest<{
         Body: CreateKpiInput,

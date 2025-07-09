@@ -24,7 +24,7 @@ export async function createReviewHandler(
 export async function findAllReviewHandler(
     request: FastifyRequest<{
         Querystring: {
-            jadwalId: string
+            tahun: string
             unitId: string
         }
     }>,
@@ -32,7 +32,7 @@ export async function findAllReviewHandler(
 ) {
     try {
         const unitId = request.query.unitId === "all" ? undefined : request.query.unitId
-        const reviews = await ReviewService.findOneReviewByTahunAndUnitId(request.query.jadwalId, unitId)
+        const reviews = await ReviewService.findOneReviewByTahunAndUnitId(request.query.tahun, unitId)
         reply.send({
             data: reviews,
             message: "Reviews Fetched Successfully",

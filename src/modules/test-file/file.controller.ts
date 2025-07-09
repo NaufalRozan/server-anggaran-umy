@@ -10,7 +10,7 @@ import util from 'util'
 const pump = util.promisify(pipeline)
 
 // 5MB
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const MAX_FILE_SIZE = 2 * 1024 * 1024
 
 export async function createFileHandler(
     request: FastifyRequest<{
@@ -20,14 +20,14 @@ export async function createFileHandler(
 ) {
     try {
         const body = request.body
-        const contentLength = body.file.file.bytesRead
+        const contentLength = 1000
 
-        if (!body.file) {
-            return reply.status(400).send({
-                message: "No file uploaded",
-                status: "error",
-            });
-        }
+        // if (!body.file) {
+        //     return reply.status(400).send({
+        //         message: "No file uploaded",
+        //         status: "error",
+        //     });
+        // }
 
         if (contentLength > MAX_FILE_SIZE) {
             return reply.status(400).send({
@@ -36,13 +36,30 @@ export async function createFileHandler(
             });
         }
 
-        const file = await FileService.createFile(
-            body.file,
-            contentLength,
-        )
+        // const file = await FileService.createFile(
+        //     body.file,
+        //     contentLength,
+        // )
+
+        const files = request.files();
+        let fileList = []
+        for await (const part of files) {
+            fileList.push(part.filename)
+            const contentLength = part.file.bytesRead
+            if (contentLength > MAX_FILE_SIZE) {
+                return reply.status(413).send({
+                    message: "File size too large",
+                    status: "error",
+                });
+            }
+            await FileService.createFile(
+                part,
+                part.file.bytesRead,
+            )
+        }
 
         reply.send({
-            data: file,
+            data: fileList,
             message: "File Uploaded Successfully",
             status: "success"
         })
@@ -141,14 +158,13 @@ export async function streamFileByPathHandler(
 
         const {
             file,
-            filePath
         } = await FileService.streamFileByPath(filename)
 
         reply
             .header("Content-Type", file.mimetype)
             .header("Content-Disposition", `inline; filename="${file.originalName}"`)
 
-        return reply.send(fs.createReadStream(filePath));
+        return reply.send(fs.createReadStream(file.path));
     } catch (error) {
         errorFilter(error, reply)
     }

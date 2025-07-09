@@ -19,7 +19,7 @@
    ```
 3. **Seeding (optional)**: seed initial data
    ```bash
-   npx prisma seed
+   npx prisma db seed
    ```
 3. **Run the Program**: run the api program
    ```bash

@@ -23,6 +23,10 @@ class JadwalService {
         return JadwalRepository.FindOneById(id)
     }
 
+    static async findJadwalByUnitIdYear(unitId: string, year: string) {
+        return JadwalRepository.FindOneByUnitIdYear(unitId, year)
+    }
+
     static async findJadwalByUnitId(unitId: string) {
         return JadwalRepository.FindOneByUnitId(unitId)
     }

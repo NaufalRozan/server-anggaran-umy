@@ -103,6 +103,7 @@ export async function getUserByTokenHandler(
         errorFilter(e, reply);
     }
 }
+
 export async function getUserByIdHandler(
     request: FastifyRequest<{
         Params: {

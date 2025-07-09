@@ -110,20 +110,6 @@ class KpiRepository {
                     baseline: kpiData.baseline ?? null,
                     target: kpiData.target ?? null,
                     secondary_pic_id: kpiData.secondaryPICId ?? null,
-
-                    SPP: {
-                        create: {
-                            tahun: kpiData.year,
-                            noSpp: sppNumber,
-
-                            SPMU: {
-                                create: {
-                                    tahun: kpiData.year,
-                                    noSpmu: spmuNumber,
-                                }
-                            }
-                        }
-                    },
                 },
             });
         });
@@ -138,6 +124,43 @@ class KpiRepository {
                 primary_pic: true,
                 secondary_pic: true,
                 bidang: true,
+            }
+        })
+    }
+
+    static async FindManyRekomended(year?: string, unitId?: string) {
+        return db.kpi.findMany({
+            where: {
+                tahun: year,
+                primary_pic: {
+                    Unit: {
+                        some: {
+                            id: unitId,
+                            Review: {
+                                every: {
+                                    reviewUmum2: {
+                                        not: null
+                                    }
+                                }
+                            }
+                        },
+                    }
+                },
+                MaOnKpi: {
+                    every: {
+                        ReviewProgram: {
+                            rekomendasi: "Direkomendasikan"
+                        },
+                    }
+                },
+
+            },
+            include: {
+                MaOnKpi: {
+                    include: {
+                        Pembelian: true,
+                    }
+                }
             }
         })
     }

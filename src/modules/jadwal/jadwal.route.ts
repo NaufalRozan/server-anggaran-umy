@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify"
-import { upsertJadwalHandler, deleteJadwalHandler, findAllJadwalHandler, findOneJadwalHandler, updateJadwalHandler } from "./jadwal.controller"
+import { upsertJadwalHandler, deleteJadwalHandler, findAllJadwalHandler, findOneJadwalHandler, updateJadwalHandler, findJadwalByUnitIdYearHandler } from "./jadwal.controller"
 import { $ref } from "./jadwal.schema"
 
 export async function jadwalRoutes(server: FastifyInstance) {
@@ -24,6 +24,18 @@ export async function jadwalRoutes(server: FastifyInstance) {
         },
         findOneJadwalHandler
     )
+
+    server.get(
+        "/unit/:unitId/year/:year",
+        {
+            schema: {
+                tags: ["Jadwal"],
+            },
+            preHandler: [server.authenticate]
+        },
+        findJadwalByUnitIdYearHandler
+    )
+
 
     server.post(
         "/",

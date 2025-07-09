@@ -8,7 +8,10 @@ class JadwalRepository {
         const upsertOperations = jadwalData.unitId.map(unitId =>
             db.jadwal.upsert({
                 where: {
-                    unitId: unitId, // Use each individual unit ID
+                    unitId_tahun: {
+                        unitId,
+                        tahun: jadwalData.tahun,
+                    }
                 },
                 update: {
                     name: jadwalData.name,
@@ -17,6 +20,7 @@ class JadwalRepository {
                 },
                 create: {
                     name: jadwalData.name,
+                    tahun: jadwalData.tahun,
                     unitId: unitId,
                     startDate: jadwalData.dateRange.from,
                     endDate: jadwalData.dateRange.to,
@@ -32,6 +36,7 @@ class JadwalRepository {
         return db.jadwal.create({
             data: {
                 name: jadwalData.name,
+                tahun: jadwalData.tahun,
                 unitId: jadwalData.unitId[0],
                 startDate: jadwalData.dateRange.from,
                 endDate: jadwalData.dateRange.to,
@@ -48,15 +53,29 @@ class JadwalRepository {
     }
 
     static async FindOneByUnitId(unitId: string) {
-        return db.jadwal.findUnique({
+        return db.jadwal.findFirst({
             where: {
                 unitId,
             }
         })
     }
 
+    static async FindOneByUnitIdYear(unitId: string, year: string) {
+        return db.jadwal.findUnique({
+            where: {
+                unitId_tahun: {
+                    unitId,
+                    tahun: year,
+                },
+            }
+        })
+    }
+
     static async FindAll(id?: string, unitId?: string, name?: string) {
         return db.jadwal.findMany({
+            orderBy: {
+                tahun: "desc"
+            },
             where: {
                 id,
                 unitId,
@@ -72,7 +91,10 @@ class JadwalRepository {
     static async Update(jadwalData: CreateJadwalInput) {
         return db.jadwal.update({
             where: {
-                unitId: jadwalData.unitId[0],
+                unitId_tahun: {
+                    unitId: jadwalData.unitId[0],
+                    tahun: jadwalData.tahun,
+                }
             },
             data: {
                 name: jadwalData.name,

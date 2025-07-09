@@ -3,10 +3,9 @@ import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 const createFileSchema = z.object({
-    id: z.custom<MultipartValue<string>>()
-        .refine((file) => !!file, "id is required"),
-    file: z.custom<MultipartFile>()
-        .refine((file) => !!file, "File is required")
+    id: z.custom<MultipartValue<string>>().optional(),
+    file: z.custom<MultipartFile>().optional(),
+    files: z.custom<MultipartFile[]>().optional()
 })
 
 

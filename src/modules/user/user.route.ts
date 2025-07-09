@@ -3,8 +3,6 @@ import { $ref } from "./user.schema";
 import { changePasswordHandler, connectUnitHandler, deleteUserHandler, disconnectUnitHandler, getAllUserHandler, getUserByIdHandler, getUserByTokenHandler, loginUserHandler, logoutHandler, registerUserHandler, updateUserHandler } from "./user.controller";
 
 export async function userRoutes(server: FastifyInstance) {
-    
-
     server.get(
         '/all',
         {

@@ -35,6 +35,14 @@ import { fileSchema } from "./modules/test-file/file.schema";
 import { fileRoutes } from "./modules/test-file/file.route";
 import { sppSchema } from "./modules/spp/spp.schema";
 import sppRoutes from "./modules/spp/spp.route";
+import { jadwalPencairanSchema } from "./modules/jadwal-pencairan/jadwal-pencairan.schema";
+import { jadwalPencairanRoutes } from "./modules/jadwal-pencairan/jadwal-pencairn.route";
+import { spmuSchema } from "./modules/spmu/spmu.schema";
+import spmuRoutes from "./modules/spmu/spmu.route";
+import { entryProgresSchema } from "./modules/entry-progres/entry-progres.schema";
+import { entryProgresRoutes } from "./modules/entry-progres/entry-progres.route";
+import { entrySPJSchemas } from "./modules/entry-spj/entry-spj.schema";
+import { entrySpjRoutes } from "./modules/entry-spj/entry-spj.route";
 
 export async function serverRoutes(server: FastifyInstance) {
     for (const schema of [
@@ -56,6 +64,10 @@ export async function serverRoutes(server: FastifyInstance) {
         ...reviewProgramSchema,
         ...fileSchema,
         ...sppSchema,
+        ...jadwalPencairanSchema,
+        ...spmuSchema,
+        ...entryProgresSchema,
+        ...entrySPJSchemas,
     ]) {
         server.addSchema(schema)
     }
@@ -82,4 +94,8 @@ export async function serverRoutes(server: FastifyInstance) {
     server.register(reviewProgramRoutes, { prefix: 'api/v1/review-program' })
     server.register(fileRoutes, { prefix: 'api/v1/file' })
     server.register(sppRoutes, { prefix: 'api/v1/spp' })
+    server.register(spmuRoutes, { prefix: 'api/v1/spmu' })
+    server.register(jadwalPencairanRoutes, { prefix: 'api/v1/jadwal-pencairan' })
+    server.register(entryProgresRoutes, { prefix: 'api/v1/entry-progres' })
+    server.register(entrySpjRoutes, { prefix: 'api/v1/entry-spj' })
 }

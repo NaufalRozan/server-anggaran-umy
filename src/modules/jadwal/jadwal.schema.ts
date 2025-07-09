@@ -8,6 +8,9 @@ const createJadwalSchema = z.object({
     name: z.string({
         required_error: "Nama Tahap harus diisi"
     }),
+    tahun: z.string({
+        required_error: "Tahun Tahap harus diisi"
+    }),
     dateRange: z.object(
         {
             from: z.date().optional(),

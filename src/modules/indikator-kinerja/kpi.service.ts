@@ -29,6 +29,12 @@ class KpiService {
             throw new Error("Bidang tidak ditemukan");
         }
 
+        // const jadwal = await JadwalRepository.FindOneByUnitIdYear(primaryPic.Unit, kpiData.year);
+        // if (!jadwal) {
+        //     throw new Error("Jadwal tidak ditemukan");
+        // }
+        // console.log(jadwal)
+
         // Create KPIs for each unit in the primary PIC
         // const createdKPIs = [];
         // for (const unit of primaryPic.Unit) {
@@ -67,6 +73,10 @@ class KpiService {
             kpis,
             pagu,
         }
+    }
+
+    static async findManyRekomended(year?: string, unitId?: string) {
+        return KpiRepository.FindManyRekomended(year, unitId)
     }
 
     static async updateKpi(kpiData: CreateKpiInput, id: string) {

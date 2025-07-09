@@ -25,13 +25,15 @@ class FileService {
             }
         })
 
-        return FileRepository.Insert(
-            fileData,
-            uniqueFilename,
-            filePath,
-            contentLength,
-            creatorId ?? undefined
-        )
+        // const file = FileRepository.Insert(
+        //     fileData,
+        //     uniqueFilename,
+        //     filePath,
+        //     contentLength,
+        //     creatorId ?? undefined
+        // )
+
+        return 
     }
 
     static async findAllFile() {
@@ -116,11 +118,8 @@ class FileService {
             throw new Error('File not found')
         }
 
-        const filePath = path.join(__dirname, '../../public', file.filename)
-
         return {
             file,
-            filePath
         }
     }
 }

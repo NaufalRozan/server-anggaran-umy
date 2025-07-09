@@ -72,7 +72,11 @@ class UserRepository {
                 username: true,
                 unit: {
                     include: {
-                        Jadwal: true
+                        Jadwal: {
+                            orderBy: {
+                                tahun: "desc"
+                            }
+                        }
                     }
                 },
                 salt: true,

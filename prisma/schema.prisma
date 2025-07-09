@@ -91,13 +91,14 @@ model Unit {
   DataSubUnit  DataSubUnit[]
   PaguAnggaran PaguAnggaran[]
 
-  created_by    User?         @relation("UnitCreatedBy", fields: [createdById], references: [id])
-  category_unit CategoryUnit? @relation(fields: [categoryId], references: [id])
-  secondary_kpi kpi[]         @relation("SecondaryPic")
-  Review        Review[]
-  MaOnKpi       MaOnKpi[]
-  Jadwal        Jadwal?
-  Laporan       Laporan[]
+  created_by      User?             @relation("UnitCreatedBy", fields: [createdById], references: [id])
+  category_unit   CategoryUnit?     @relation(fields: [categoryId], references: [id])
+  secondary_kpi   kpi[]             @relation("SecondaryPic")
+  Review          Review[]
+  MaOnKpi         MaOnKpi[]
+  Laporan         Laporan[]
+  JadwalPencairan JadwalPencairan[]
+  Jadwal          Jadwal[]
 
   @@map("units")
 }
@@ -150,6 +151,7 @@ model VisiMisi {
 model kpi {
   id               String    @id @default(cuid())
   bidangId         String    @map("bidang_id")
+  tahun            String
   kpiCode          String    @unique @map("kpi_code")
   name             String
   sifat            String
@@ -157,7 +159,6 @@ model kpi {
   baseline         String?
   target           String?
   active           Boolean   @default(true)
-  tahun            String
   primary_pic_id   String    @map("primary_pic_id")
   secondary_pic_id String?   @map("secondary_pic_id")
   MaOnKpi          MaOnKpi[]
@@ -171,7 +172,6 @@ model kpi {
   primary_pic   CategoryUnit @relation("PrimaryPic", fields: [primary_pic_id], references: [id])
   secondary_pic Unit?        @relation("SecondaryPic", fields: [secondary_pic_id], references: [id])
   bidang        Bidang?      @relation(fields: [bidangId], references: [id], onDelete: Cascade)
-  SPP           SPP?
 
   @@map("indikator_kinerja")
 }
@@ -192,24 +192,36 @@ model ma {
 }
 
 model MaOnKpi {
-  id          String      @id @default(cuid())
-  kpiId       String      @map("kpi_id")
-  maId        String      @map("ma_id")
-  unitId      String      @map("unit_id")
-  uraian      String
-  output      String
-  startDate   DateTime    @map("start_date")
-  endDate     DateTime    @map("end_date")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  createdById String?     @map("created_by_id")
-  created_by  User?       @relation("MaOnKpiCreatedBy", fields: [createdById], references: [id])
-  Pembelian   Pembelian[]
+  id              String      @id @default(cuid())
+  kpiId           String      @map("kpi_id")
+  maId            String      @map("ma_id")
+  unitId          String      @map("unit_id")
+  sPPId           String?     @map("spp_id")
+  uraian          String
+  output          String
+  statusBiroKeu   Boolean?    @default(false) @map("status_biro_keu")
+  anggaran        Int?        @default(0)
+  telahDiterima   Int?        @default(0) @map("telah_diterima")
+  anggaranDiminta Int?        @default(0) @map("anggaran_diminta")
+  startDate       DateTime    @map("start_date")
+  endDate         DateTime    @map("end_date")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  createdById     String?     @map("created_by_id")
+  created_by      User?       @relation("MaOnKpiCreatedBy", fields: [createdById], references: [id])
+  Pembelian       Pembelian[]
 
-  KPI           kpi            @relation(fields: [kpiId], references: [id], onDelete: Cascade)
-  MA            ma             @relation(fields: [maId], references: [id], onDelete: Cascade)
-  Unit          Unit           @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  ReviewProgram ReviewProgram?
+  KPI                kpi            @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+  MA                 ma             @relation(fields: [maId], references: [id], onDelete: Cascade)
+  Unit               Unit           @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  ReviewProgram      ReviewProgram?
+  SPP                SPP?           @relation(fields: [sPPId], references: [id])
+  ProgresSPJ         ProgresSPJ?
+  dokumenPersiapan   File[]         @relation("DokumenPersiapan")
+  dokumenPelaksanaan File[]         @relation("DokumenPelaksanaan")
+  dokumenLaporan     File[]         @relation("DokumenLaporan")
+  dokumenPengalihan  File?          @relation("DokumenPengalihan")
+  SPJ                SPJ?
 
   @@map("_maonkpi")
 }
@@ -262,7 +274,8 @@ model Pembelian {
 
 model Jadwal {
   id        String    @id @default(cuid())
-  unitId    String    @unique @map("unit_id")
+  unitId    String    @map("unit_id")
+  tahun     String
   name      String?
   startDate DateTime?
   endDate   DateTime?
@@ -272,14 +285,15 @@ model Jadwal {
 
   unit Unit @relation(fields: [unitId], references: [id])
 
+  @@unique([unitId, tahun])
   @@map("jadwal")
 }
 
 model PaguAnggaran {
   id       String @id @default(cuid())
+  tahun    String
   pagu     Int
   terpakai Int?   @default(0)
-  tahun    String
   unitId   String @map("unit_id")
 
   createdAt DateTime @default(now())
@@ -294,7 +308,7 @@ model PaguAnggaran {
 
 model Review {
   id             String   @id @default(cuid())
-  tahun          String   @unique
+  tahun          String
   unitId         String   @map("unit_id")
   reviewUmum     String?  @map("review_umum")
   tanggapanAkhir String?  @map("tanggapan_akhir")
@@ -346,39 +360,136 @@ model File {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Remove the direct progresSPJId field
+  // Instead, add two optional relation fields
+  persiapanId   String? @map("persiapan_id")
+  pelaksanaanId String? @map("pelaksanaan_id")
+  laporanId     String? @map("laporan_id")
+  pengalihanId  String? @unique @map("pengalihan_id")
+
+  // Define the two different relations
+  dokumenPersiapan    MaOnKpi? @relation("DokumenPersiapan", fields: [persiapanId], references: [id], onDelete: Cascade)
+  dokumenPelaksanaan  MaOnKpi? @relation("DokumenPelaksanaan", fields: [pelaksanaanId], references: [id], onDelete: Cascade)
+  dokumenLaporanAkhir MaOnKpi? @relation("DokumenLaporan", fields: [laporanId], references: [id], onDelete: Cascade)
+  dokumenPengalihan   MaOnKpi? @relation("DokumenPengalihan", fields: [pengalihanId], references: [id], onDelete: Cascade)
+
   @@index([filename])
   @@index([createdAt])
 }
 
 model SPP {
-  id          String   @id @default(cuid())
-  indicatorId String   @unique @map("indicator_id")
-  tahun       String
-  noSpp       String   @map("no_spp")
-  otorisasi   Boolean  @default(false)
-  status      String   @default("Pending")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  tahun         String
+  periodeSPMUId String   @map("periode_spmu_id")
+  noSpp         String   @map("no_spp")
+  otorisasi     Boolean  @default(false)
+  status        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  kpi  kpi   @relation(fields: [indicatorId], references: [id], onDelete: Cascade)
-  SPMU SPMU?
+  MaOnKpi MaOnKpi[]
+
+  periode PeriodeSPMU @relation(fields: [periodeSPMUId], references: [id])
+  SPMU    SPMU?
 
   @@map("spp")
 }
 
 model SPMU {
-  id           String    @id @default(cuid())
-  sppId        String    @unique @map("spp_id")
-  tahun        String
-  noSpmu       String    @map("no_spmu")
-  status       String    @default("Pending")
-  tanggal      DateTime?
-  biroApproval Boolean   @default(false) @map("biro_approval")
-  wr2Approval  Boolean   @default(false) @map("wr2_approval")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  tahun         String
+  periodeSPMUId String    @map("periode_spmu_id")
+  sppId         String    @unique @map("spp_id")
+  noSpmu        String    @map("no_spmu")
+  status        Boolean   @default(false)
+  tanggal       DateTime?
+  biroApproval  Boolean   @default(false) @map("biro_approval")
+  wr2Approval   Boolean   @default(false) @map("wr2_approval")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  spp SPP @relation(fields: [sppId], references: [id], onDelete: Cascade)
+  periode PeriodeSPMU @relation(fields: [periodeSPMUId], references: [id])
+  spp     SPP         @relation(fields: [sppId], references: [id])
 
   @@map("spmu")
+}
+
+model PeriodeSPMU {
+  id                 String    @id @default(cuid())
+  jadwalPencairanId  String    @map("jadwal_pencairan_id")
+  periode            String
+  startDatePengajuan DateTime? @map("start_date_pengajuan")
+  endDatePengajuan   DateTime? @map("end_date_pengajuan")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  JadwalPencairan JadwalPencairan @relation(fields: [jadwalPencairanId], references: [id], onDelete: Cascade)
+  SPP             SPP[]
+  SPMU            SPMU[]
+
+  @@map("periode_spmu")
+}
+
+model JadwalPencairan {
+  id            String @id @default(cuid())
+  tahun         String
+  unitId        String @map("unit_id")
+  batasKegiatan Int?   @map("batas_kegiatan")
+  tunggakanSPJ  Int?   @map("tunggakan_spj")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit        Unit          @relation(fields: [unitId], references: [id])
+  PeriodeSPMU PeriodeSPMU[]
+
+  @@map("jadwal_pencairan")
+}
+
+model ProgresSPJ {
+  id       String @id @default(cuid())
+  prokerId String @unique @map("proker_id")
+
+  statusKegiatan          String?  @map("status_kegiatan")
+  persenKegiatan          Int?     @map("persen_kegiatan")
+  uraianKegiatan          String?  @map("uraian_kegiatan")
+  realisasiOutputKegiatan String?  @map("realisasi_output_kegiatan")
+  statusDiperbaiki        Boolean? @default(true) @map("status_diperbaiki")
+
+  statusPenilaianBPM String? @map("status_penilaian_bpm")
+  persenPenilaianBPM Int?    @map("persen_penilaian_bpm")
+  uraianPenilaianBPM String? @map("uraian_penilaian_bpm")
+  realisasiOutputBPM String? @map("realisasi_output_bpm")
+  statusApprovalBPM  String? @map("status_aproval_bpm")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proker MaOnKpi @relation(fields: [prokerId], references: [id])
+
+  @@map("progres_spj")
+}
+
+model SPJ {
+  id       String @id @default(cuid())
+  prokerId String @unique @map("proker_id")
+
+  noSPJ      String?   @map("no_spj")
+  nominalSPJ Int?      @map("nominal_spj")
+
+  statusPersetujuanBiro String?   @map("status_persetujuan_biro")
+  keteranganBiro        String?   @map("keterangan_biro")
+  tanggalApprovalBiro   DateTime? @map("tanggal_approval_biro")
+
+  statusPersetujuanBPM String?   @map("status_persetujuan_bpm")
+  keteranganBPM        String?   @map("keterangan_bpm")
+  tanggalApprovalBPM   DateTime? @map("tanggal_approval_bpm")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proker MaOnKpi @relation(fields: [prokerId], references: [id])
+
+  @@map("spj")
 }

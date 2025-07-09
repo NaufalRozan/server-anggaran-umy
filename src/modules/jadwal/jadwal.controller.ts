@@ -21,6 +21,24 @@ export async function upsertJadwalHandler(
     }
 }
 
+export async function createJadwalHandler(
+    request: FastifyRequest<{
+        Body: CreateJadwalInput
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const jadwal = await JadwalService.createJadwal(request.body)
+        reply.send({
+            data: jadwal,
+            message: "Jadwal Created Successfully",
+            status: "success"
+        })
+    } catch (error) {
+        errorFilter(error, reply)
+    }
+}
+
 export async function findAllJadwalHandler(
     request: FastifyRequest<{
         Querystring: {
@@ -59,6 +77,28 @@ export async function findOneJadwalHandler(
             status: "success"
         })
     } catch (error) {
+        errorFilter(error, reply)
+    }
+}
+
+export async function findJadwalByUnitIdYearHandler(
+    request: FastifyRequest<{
+        Querystring: {
+            unitId: string,
+            year: string
+        }
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const jadwal = await JadwalService.findJadwalByUnitIdYear(request.query.unitId, request.query.year)
+        reply.send({
+            data: jadwal,
+            message: "Jadwal Fetched Successfully",
+            status: "success"
+        })
+    }
+    catch (error) {
         errorFilter(error, reply)
     }
 }

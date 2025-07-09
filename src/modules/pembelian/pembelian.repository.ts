@@ -13,7 +13,7 @@ class PembelianRepository {
         paguId: string,
         creatorId?: string,
     ) {
-        return db.pembelian.create({
+        const pembelian = await db.pembelian.create({
             data: {
                 rekeningId,
                 prokerId,
@@ -25,6 +25,21 @@ class PembelianRepository {
                 paguId,
             }
         })
+
+        const proker = await db.maOnKpi.findUnique({
+            where: { id: prokerId }
+        })
+
+        if (proker) {
+            await db.maOnKpi.update({
+                where: { id: prokerId },
+                data: {
+                    anggaran: (proker.anggaran || 0) + jumlah
+                }
+            });
+        } 
+
+        return pembelian
     }
 
     static async FindAll() {

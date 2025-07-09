@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify"
-import { createKpiHandler, deleteKpiHandler, findAllKpiHandler, findManyKpiByUserIdHandler, findOneKpiHandler, updateKpiHandler } from "./kpi.controller"
+import { createKpiHandler, deleteKpiHandler, findAllKpiHandler, findManyKpiByUserIdHandler, findManyRekomendedHandler, findOneKpiHandler, updateKpiHandler } from "./kpi.controller"
 import { $ref } from "./kpi.schema"
 
 
@@ -35,6 +35,17 @@ async function kpiRoutes(server: FastifyInstance) {
             preHandler: [server.authenticate]
         },
         findManyKpiByUserIdHandler
+    )
+
+    server.get(
+        "/recomended",
+        {
+            schema: {
+                tags: ["Indicator"],
+            },
+            preHandler: [server.authenticate]
+        },
+        findManyRekomendedHandler
     )
 
     server.post(
