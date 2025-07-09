@@ -1,4 +1,5 @@
 
+import { Prisma } from "@prisma/client";
 import { db } from "../../config/prisma";
 import { CreateSPPInput } from "./spp.schema";
 
@@ -34,10 +35,10 @@ class SPPRepository {
             },
         })
 
-        await db.$transaction(async (tx) => {
+        await db.$transaction(async (tx: Prisma.TransactionClient) => {
             for (let i = 0; i < dataSpp.proker.length; i++) {
                 const proker = dataSpp.proker[i];
-                const maOnKpi = await db.maOnKpi.findFirst({
+                const maOnKpi = await tx.maOnKpi.findFirst({
                     where: {
                         id: proker.prokerId
                     }

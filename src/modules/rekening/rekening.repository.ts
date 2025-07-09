@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { db } from "../../config/prisma";
 
 class RekeningRepository {
@@ -21,7 +22,7 @@ class RekeningRepository {
         units?: string[],
         creatorId?: string,
     ) {
-        return db.$transaction(async (tx) => {
+        return db.$transaction(async (tx: Prisma.TransactionClient) => {
             const jenis = await tx.jenisRekening.findUnique({
                 where: { id: jenisId }
             });

@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { db } from "../../config/prisma";
 
 class JenisRekeningRepository {
@@ -15,7 +16,7 @@ class JenisRekeningRepository {
         name: string,
         creatorId?: string,
     ) {
-        return db.$transaction(async (tx) => {
+        return db.$transaction(async (tx: Prisma.TransactionClient) => {
             const nextCode = await this.getNextProductCode();
 
             const existingJk = await tx.jenisRekening.findUnique({

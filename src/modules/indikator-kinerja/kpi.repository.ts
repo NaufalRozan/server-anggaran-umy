@@ -1,6 +1,7 @@
 import { parse } from "path";
 import { db } from "../../config/prisma";
 import { CreateKpiInput } from "./kpi.schema";
+import { Prisma } from "@prisma/client";
 
 
 class KpiRepository {
@@ -68,7 +69,7 @@ class KpiRepository {
         kpiData: CreateKpiInput,
         createdById?: string
     ) {
-        return db.$transaction(async (tx) => {
+        return db.$transaction(async (tx: Prisma.TransactionClient) => {
             const bidang = await tx.bidang.findUnique({
                 where: { id: kpiData.bidangId }
             });

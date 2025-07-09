@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { db } from "../../config/prisma";
 
 class MaRepository {
@@ -20,7 +21,7 @@ class MaRepository {
         maCode?: string,
         creatorId?: string,
     ) {
-        return db.$transaction(async (tx) => {
+        return db.$transaction(async (tx: Prisma.TransactionClient) => {
             const indicator = await tx.kpi.findUnique({
                 where: { id: indicatorId }
             });

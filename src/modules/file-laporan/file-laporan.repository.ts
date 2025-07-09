@@ -3,6 +3,7 @@ import fs from 'fs'
 import { db } from "../../config/prisma";
 import { CreateFileInput } from "./file-laporan.schema";
 import { MultipartFile } from "@fastify/multipart";
+import { Prisma } from "@prisma/client";
 
 class FileRepository {
     static async Insert(
@@ -13,7 +14,7 @@ class FileRepository {
         laporanInput: string,
         creatorId?: string
     ) {
-        return await db.$transaction(async (tx) => {
+        return await db.$transaction(async (tx: Prisma.TransactionClient) => {
             try {
                 return await tx.fileLaporan.create({
                     data: {

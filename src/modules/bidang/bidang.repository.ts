@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { db } from "../../config/prisma";
 import { CreateBidangInput } from "./bidang.schema";
 
@@ -16,7 +17,7 @@ class BidangRepository {
         bidangData: CreateBidangInput,
         creatorId?: string
     ) {
-        return await db.$transaction(async (tx) => {
+        return await db.$transaction(async (tx: Prisma.TransactionClient) => {
             const nextCode = await this.getNextBidangCode();
 
             const existingBidang = await tx.bidang.findUnique({
