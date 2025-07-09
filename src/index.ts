@@ -30,8 +30,9 @@ server.register(import("@fastify/swagger-ui"), {
 });
 
 server.register(cors, {
-    origin: ['http://localhost:3000', 'https://spmi.iqbalalhabib.com'],
+    origin: `${process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : 'http://localhost:3000'}`,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 })
 
 server.ready(err => {
