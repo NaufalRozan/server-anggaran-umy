@@ -96,9 +96,10 @@ model Unit {
   secondary_kpi   kpi[]             @relation("SecondaryPic")
   Review          Review[]
   MaOnKpi         MaOnKpi[]
-  Laporan         Laporan[]
   JadwalPencairan JadwalPencairan[]
   Jadwal          Jadwal[]
+  JadwalLaporan JadwalLaporan?
+
 
   @@map("units")
 }
@@ -163,6 +164,7 @@ model kpi {
   secondary_pic_id String?   @map("secondary_pic_id")
   MaOnKpi          MaOnKpi[]
   ma               ma[]
+  Laporan          Laporan[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -337,17 +339,6 @@ model ReviewProgram {
   @@map("review_program")
 }
 
-model Laporan {
-  id     String @id @default(cuid())
-  unitId String @map("unit_id")
-  name   String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  unit Unit @relation(fields: [unitId], references: [id])
-}
-
 model File {
   id           String   @id @default(cuid())
   filename     String
@@ -492,4 +483,59 @@ model SPJ {
   proker MaOnKpi @relation(fields: [prokerId], references: [id])
 
   @@map("spj")
+}
+
+model Laporan {
+  id              String  @id @default(cuid())
+  indikatorId     String  @map("indikator_id")
+  capaian         Int?    @default(0)
+  capaian_auditor Int?    @default(0)
+  kendala         String? @db.Text
+  perbaikan       String? @db.Text
+  rtl             String? @db.Text
+  pic             String? @db.Text
+  komentar        String? @db.Text
+  rtl_auditor     String? @db.Text
+  isApproved      Boolean @default(false) @map("is_approved")
+  indicator       kpi     @relation(fields: [indikatorId], references: [id])
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  FileLaporan FileLaporan[]
+
+  @@map("laporan")
+}
+
+model FileLaporan {
+  id           String   @id @default(cuid())
+  laporanId    String   @map("laporan_id")
+  filename     String
+  originalName String
+  path         String
+  mimetype     String
+  size         Int
+  extension    String
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  laporan      Laporan  @relation(fields: [laporanId], references: [id])
+
+  @@index([filename])
+  @@index([createdAt])
+  @@map("file_laporan")
+}
+
+model JadwalLaporan {
+  id        String    @id @default(cuid())
+  unitId    String    @unique @map("unit_id")
+  name      String?
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit Unit @relation(fields: [unitId], references: [id])
+
+  @@map("jadwal_laporan")
 }

@@ -19,7 +19,7 @@ server.register(import("@fastify/swagger"), {
             url: "https://spmi.iqbalalhabib.com/docs",
             description: "Find more info here",
         },
-        host: "localhost:5000",
+        host: "localhost:5002",
         schemes: ["http", "https"],
         consumes: ["application/json", "multipart/form-data"],
         produces: ["application/json"],
@@ -114,7 +114,7 @@ async function start() {
     serverRoutes(server)
 
     try {
-        await server.listen({ port: 5000, host: '0.0.0.0' })
+        await server.listen({ port: 5002, host: '0.0.0.0' })
     } catch (e) {
         console.error(e)
         process.exit(1)

@@ -31,8 +31,6 @@ import { reviewSchema } from "./modules/review/review.schema";
 import { reviewRoutes } from "./modules/review/review.route";
 import { reviewProgramSchema } from "./modules/review-program/rp.schema";
 import { reviewProgramRoutes } from "./modules/review-program/rp.route";
-import { fileSchema } from "./modules/test-file/file.schema";
-import { fileRoutes } from "./modules/test-file/file.route";
 import { sppSchema } from "./modules/spp/spp.schema";
 import sppRoutes from "./modules/spp/spp.route";
 import { jadwalPencairanSchema } from "./modules/jadwal-pencairan/jadwal-pencairan.schema";
@@ -43,6 +41,12 @@ import { entryProgresSchema } from "./modules/entry-progres/entry-progres.schema
 import { entryProgresRoutes } from "./modules/entry-progres/entry-progres.route";
 import { entrySPJSchemas } from "./modules/entry-spj/entry-spj.schema";
 import { entrySpjRoutes } from "./modules/entry-spj/entry-spj.route";
+import { fileSchema } from "./modules/file-laporan/file-laporan.schema";
+import { fileRoutes } from "./modules/file-laporan/file-laporan.route";
+import { jadwalLaporanSchema } from "./modules/jadwal-laporan/jl.schema";
+import { laporanSchema } from "./modules/laporan/laporan.schema";
+import { laporanRoutes } from "./modules/laporan/laporan.route";
+import { jadwalLaporanRoutes } from "./modules/jadwal-laporan/jl.route";
 
 export async function serverRoutes(server: FastifyInstance) {
     for (const schema of [
@@ -68,6 +72,8 @@ export async function serverRoutes(server: FastifyInstance) {
         ...spmuSchema,
         ...entryProgresSchema,
         ...entrySPJSchemas,
+        ...jadwalLaporanSchema,
+        ...laporanSchema,
     ]) {
         server.addSchema(schema)
     }
@@ -92,10 +98,12 @@ export async function serverRoutes(server: FastifyInstance) {
     server.register(paguRoutes, { prefix: 'api/v1/pagu' })
     server.register(reviewRoutes, { prefix: 'api/v1/review' })
     server.register(reviewProgramRoutes, { prefix: 'api/v1/review-program' })
-    server.register(fileRoutes, { prefix: 'api/v1/file' })
     server.register(sppRoutes, { prefix: 'api/v1/spp' })
     server.register(spmuRoutes, { prefix: 'api/v1/spmu' })
     server.register(jadwalPencairanRoutes, { prefix: 'api/v1/jadwal-pencairan' })
     server.register(entryProgresRoutes, { prefix: 'api/v1/entry-progres' })
     server.register(entrySpjRoutes, { prefix: 'api/v1/entry-spj' })
+    server.register(laporanRoutes, { prefix: 'api/v1/laporan' })
+    server.register(fileRoutes, { prefix: 'api/v1/file' })
+    server.register(jadwalLaporanRoutes, { prefix: 'api/v1/jadwal-laporan' })
 }

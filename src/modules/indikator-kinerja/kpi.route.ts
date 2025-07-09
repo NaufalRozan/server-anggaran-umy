@@ -31,6 +31,13 @@ async function kpiRoutes(server: FastifyInstance) {
         {
             schema: {
                 tags: ["Indicator"],
+                querystring: {
+                    type: "object",
+                    properties: {
+                        year: { type: "string", default: new Date().getFullYear().toString() },
+                        unitId: { type: "string" }
+                    },
+                }
             },
             preHandler: [server.authenticate]
         },

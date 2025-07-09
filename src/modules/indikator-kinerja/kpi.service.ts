@@ -1,5 +1,6 @@
 import BidangRepository from "../bidang/bidang.repository";
 import JadwalRepository from "../jadwal/jadwal.repository";
+import LaporanRepository from "../laporan/laporan.repository";
 import PaguRepository from "../pagu/pagu.repository";
 import UnitRepository from "../unit/unit.repository";
 import UserRepository from "../user/user.repository";
@@ -59,9 +60,10 @@ class KpiService {
     }
 
     static async findManyByUserId(id: string, year?: string, unitId?: string) {
-        const [kpis , pagu] = await Promise.all([
+        const [kpis , pagu, laporan] = await Promise.all([
             KpiRepository.FindManyByUserId(id, year, unitId),
-            PaguRepository.FindByJadwalIdAndUnitId(year ?? "",unitId ?? "")
+            PaguRepository.FindByJadwalIdAndUnitId(year ?? "",unitId ?? ""),
+            LaporanRepository.FindOne(id)
         ])
         // const kpisConverted = kpis.map(kpi => {
         //     return {
@@ -72,6 +74,7 @@ class KpiService {
         return {
             kpis,
             pagu,
+            laporan,
         }
     }
 

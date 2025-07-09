@@ -124,6 +124,7 @@ class KpiRepository {
                 primary_pic: true,
                 secondary_pic: true,
                 bidang: true,
+                Laporan: true,
             }
         })
     }
@@ -175,7 +176,7 @@ class KpiRepository {
                 secondary_pic: true,
                 bidang: true,
                 ma: true,
-
+                Laporan: true,
             }
         })
     }
@@ -222,6 +223,7 @@ class KpiRepository {
                         ReviewProgram: true,
                     }
                 },
+                Laporan: true,
             }
         })
     }

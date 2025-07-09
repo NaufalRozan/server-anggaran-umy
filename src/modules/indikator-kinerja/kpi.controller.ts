@@ -81,7 +81,7 @@ export async function findManyKpiByUserIdHandler(
                 message: "Indicator Fetched Successfully",
                 status: "success",
                 meta: {
-                    pagu: {}
+                    pagu: {},
                 }
             })
         }
