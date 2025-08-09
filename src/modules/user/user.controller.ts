@@ -40,10 +40,10 @@ export async function loginUserHandler(
         reply.setCookie('access_token', token, {
             path: '/',
             maxAge: 60 * 60 * 24 * 7,    // for a week
-            // domain: process.env.DOMAIN,
+            domain: process.env.DOMAIN,
             httpOnly: true,
             secure: true,
-            sameSite: 'none',
+            // sameSite: 'none',
         })
 
         return { accessToken: token }
@@ -61,10 +61,10 @@ export async function logoutHandler(
 ) {
     reply.clearCookie('access_token', {
         path: '/',
-        // domain: process.env.DOMAIN,
+        domain: process.env.DOMAIN,
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        // sameSite: 'none'
     });
 
     return reply.status(201).send({
