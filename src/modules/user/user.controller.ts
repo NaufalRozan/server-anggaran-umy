@@ -72,6 +72,22 @@ export async function logoutHandler(
      })
 }
 
+export async function seedUserHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+) {
+    try {
+        const user = await UserService.seed();
+        reply.send({
+            data: user,
+            message: "User seeded successfully",
+            status: "success"
+        })
+    } catch (e) {
+        errorFilter(e, reply);
+    }
+}
+
 export async function getAllUserHandler(
     request: FastifyRequest,
     reply: FastifyReply

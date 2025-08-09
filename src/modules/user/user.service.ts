@@ -1,3 +1,4 @@
+import { db } from "../../config/prisma";
 import { hashPassword, verifyPassword } from "../../utils/hash";
 import RoleRepository from "../role/role.repository";
 import UserRepository from "./user.repository";
@@ -35,7 +36,7 @@ class UserService {
         if (!role) {
             input.roleId = undefined;
         }
-        
+
         const user = await UserRepository.Insert(
             input.username,
             hash,
@@ -47,8 +48,58 @@ class UserService {
         return user;
     }
 
+    static async seed() {
+        const permissionNames = [
+            'ADMIN_PERENCANAAN',
+            'REVIEWER',
+            'PIMPINAN_UNIT',
+            'ASSESOR_AUDIT',
+            'ADMIN_UNIT',
+            'ADMIN_KEUANGAN',
+        ]
+
+        const superAdminAccount = await UserService.createUser({
+            username: 'superadmin',
+            password: 'admin123',
+        })
+
+        const permissions = await Promise.all(
+            (permissionNames ?? []).map(async (permissionName) => {
+                return await db.permission.upsert({
+                    where: { name: permissionName },
+                    update: {},
+                    create: { name: permissionName },
+                })
+            })
+        )
+
+        const superAdminRole = await db.role.upsert({
+            where: {
+                name: 'Super Admin'
+            },
+            update: {},
+            create: {
+                name: 'Super Admin',
+                permissions: {
+                    connect: [...permissions]
+                }
+            },
+        })
+
+        const updatedSuperAdmin = await db.user.update({
+            where: {
+                id: superAdminAccount.id
+            },
+            data: {
+                roleId: superAdminRole.id
+            }
+        })
+
+        return updatedSuperAdmin;
+    }
+
     static async getAllUsers(userId: string) {
-        
+
 
         const users = await UserRepository.FindAll();
 

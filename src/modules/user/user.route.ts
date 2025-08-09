@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { $ref } from "./user.schema";
-import { changePasswordHandler, connectUnitHandler, deleteUserHandler, disconnectUnitHandler, getAllUserHandler, getUserByIdHandler, getUserByTokenHandler, loginUserHandler, logoutHandler, registerUserHandler, updateUserHandler } from "./user.controller";
+import { changePasswordHandler, connectUnitHandler, deleteUserHandler, disconnectUnitHandler, getAllUserHandler, getUserByIdHandler, getUserByTokenHandler, loginUserHandler, logoutHandler, registerUserHandler, seedUserHandler, updateUserHandler } from "./user.controller";
 
 export async function userRoutes(server: FastifyInstance) {
     server.get(
@@ -34,6 +34,17 @@ export async function userRoutes(server: FastifyInstance) {
             preHandler: [server.authenticate]
         },
         getUserByTokenHandler
+    )
+
+    server.post(
+        '/seed',
+        {
+            schema: {
+                summary: 'Seed user',
+                tags: ['User'],
+            },
+        },
+        seedUserHandler
     )
 
     server.get(
