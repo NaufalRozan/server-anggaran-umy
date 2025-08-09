@@ -2,6 +2,7 @@
 FROM node:22.14-alpine AS build
 WORKDIR /app
 
+RUN apk add --no-cache openssl
 COPY package.json package-lock.json* ./
 RUN npm ci --legacy-peer-deps
 
@@ -13,6 +14,7 @@ FROM node:22.14-alpine AS production
 ENV NODE_ENV=production
 
 WORKDIR /app
+RUN apk add --no-cache openssl
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY package.json package-lock.json* ./
