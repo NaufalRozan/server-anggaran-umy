@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { db } from "../../config/prisma";
+import { CreateManyRekeningInput } from "./rekening.schema";
+import JenisRekeningRepository from "../jenis-rekening/jr.repository";
 
 class RekeningRepository {
     static async getNextVariantCode(jenisId: string) {
@@ -45,6 +47,26 @@ class RekeningRepository {
                 }
             })
         })
+    }
+
+    static async InsertMany(
+        rekeningData: CreateManyRekeningInput,
+    ) {
+        return db.$transaction(async (tx: Prisma.TransactionClient) => {
+            const results = [];
+            for (const data of rekeningData) {
+                const rekening = await tx.rekening.create({
+                    data: {
+                        name: data.name,
+                        jenisId: "cme3ii1wh0000twcwld0zijtn",
+                        noRek: data.noRek,
+                    }
+                })
+
+                results.push(rekening);
+            }
+            return results;
+        });
     }
 
     static async FindAll() {

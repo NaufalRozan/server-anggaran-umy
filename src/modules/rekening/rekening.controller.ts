@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify"
-import { CreateRekeningInput } from "./rekening.schema"
+import { CreateManyRekeningInput, CreateRekeningInput } from "./rekening.schema"
 import RekeningService from "./rekening.service"
 import { errorFilter } from "../../middlewares/error-handling"
 
@@ -15,6 +15,24 @@ export async function createRekeningHandler(
             request.body,
             request.user.id
         )
+        reply.send({
+            data: rekening,
+            message: "Rekening Created Successfully",
+            status: "success"
+        })
+    } catch (error) {
+        errorFilter(error, reply)
+    }
+}
+
+export async function createManyRekeningHandler(
+    request: FastifyRequest<{
+        Body: CreateManyRekeningInput
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const rekening = await RekeningService.createManyRekening(request.body)
         reply.send({
             data: rekening,
             message: "Rekening Created Successfully",

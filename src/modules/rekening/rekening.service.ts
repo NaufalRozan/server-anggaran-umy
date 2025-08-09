@@ -1,5 +1,5 @@
 import RekeningRepository from "./rekening.repository";
-import { CreateRekeningInput } from "./rekening.schema";
+import { CreateManyRekeningInput, CreateRekeningInput } from "./rekening.schema";
 
 class RekeningService {
     static async createRekening(
@@ -13,6 +13,10 @@ class RekeningService {
             rekeningData.units,
             creatorId ?? undefined
         )
+    }
+
+    static async createManyRekening(rekeningData: CreateManyRekeningInput) {
+        return RekeningRepository.InsertMany(rekeningData)
     }
 
     static async findAllRekening() {

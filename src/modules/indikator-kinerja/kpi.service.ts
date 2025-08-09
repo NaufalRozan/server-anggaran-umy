@@ -5,7 +5,7 @@ import PaguRepository from "../pagu/pagu.repository";
 import UnitRepository from "../unit/unit.repository";
 import UserRepository from "../user/user.repository";
 import KpiRepository from "./kpi.repository";
-import { CreateKpiInput } from "./kpi.schema";
+import { CreateKpiInput, CreateManyKpiInput } from "./kpi.schema";
 
 
 class KpiService {
@@ -49,6 +49,10 @@ class KpiService {
         // }
 
         return await KpiRepository.Insert(kpiData, creatorId);
+    }
+
+    static async createManyKpi(kpiData: CreateManyKpiInput) {
+        return KpiRepository.InsertMany(kpiData)
     }
 
     static async findAllKpi(year?: string) {

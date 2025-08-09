@@ -1,6 +1,6 @@
 import { parse } from "path";
 import { db } from "../../config/prisma";
-import { CreateKpiInput } from "./kpi.schema";
+import { CreateKpiInput, CreateManyKpiInput } from "./kpi.schema";
 import { Prisma } from "@prisma/client";
 
 
@@ -113,6 +113,31 @@ class KpiRepository {
                     secondary_pic_id: kpiData.secondaryPICId ?? null,
                 },
             });
+        });
+    }
+
+    static async InsertMany(
+        kpiData: CreateManyKpiInput
+    ) {
+        return db.$transaction(async (tx: Prisma.TransactionClient) => {
+            const results = [];
+            for (const data of kpiData) {
+                const kpi = await tx.kpi.create({
+                    data: {
+                        kpiCode: data.Kode,
+                        name: data.name,
+                        sifat: "Wajib",
+                        tahun: "2025",
+                        bidangId: data.Bidang,
+                        target: data.target ? String(data.target) : null,
+                        standard: data.standard ? String(data.standard) : null,
+                        primary_pic_id: data.pic === "Universitas" ? "cmdquitah000014ielkuvs4j2" : "cm6lgf1ng0000w6w35eienond",
+                    }
+                });
+
+                results.push(kpi);
+            }
+            return results;
         });
     }
 

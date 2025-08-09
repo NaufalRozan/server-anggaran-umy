@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { createRekeningHandler, deleteRekeningHandler, findAllRekeningHandler, findManyByUserIdHandler, findOneRekeningHandler, updateRekeningHandler } from "./rekening.controller";
+import { createManyRekeningHandler, createRekeningHandler, deleteRekeningHandler, findAllRekeningHandler, findManyByUserIdHandler, findOneRekeningHandler, updateRekeningHandler } from "./rekening.controller";
 import { $ref } from "./rekening.schema";
 
 
@@ -47,6 +47,18 @@ export async function rekeningRoutes(server: FastifyInstance) {
             preHandler: [server.authenticate]
         },
         createRekeningHandler
+    )
+
+    server.post(
+        "/many",
+        {
+            schema: {
+                tags: ["Rekening"],
+                body: $ref("createManyRekeningSchema"),
+            },
+            // preHandler: [server.authenticate]
+        },
+        createManyRekeningHandler
     )
 
     server.put(

@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify"
-import { CreateKpiInput } from "./kpi.schema"
+import { CreateKpiInput, CreateManyKpiInput } from "./kpi.schema"
 import KpiService from "./kpi.service"
 import { errorFilter } from "../../middlewares/error-handling"
 import { parse } from "path"
@@ -17,6 +17,24 @@ export async function createKpiHandler(
         reply.send({
             data: kpi,
             message: "Indicator Created Successfully",
+            status: "success"
+        })
+    } catch (error) {
+        errorFilter(error, reply)
+    }
+}
+
+export async function createManyKpiHandler(
+    request: FastifyRequest<{
+        Body: CreateManyKpiInput
+    }>,
+    reply: FastifyReply
+) {
+    try {
+        const kpi = await KpiService.createManyKpi(request.body)
+        reply.send({
+            data: kpi,
+            message: "Indicators Created Successfully",
             status: "success"
         })
     } catch (error) {

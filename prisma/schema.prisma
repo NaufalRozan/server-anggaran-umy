@@ -98,8 +98,7 @@ model Unit {
   MaOnKpi         MaOnKpi[]
   JadwalPencairan JadwalPencairan[]
   Jadwal          Jadwal[]
-  JadwalLaporan JadwalLaporan?
-
+  JadwalLaporan   JadwalLaporan?
 
   @@map("units")
 }
@@ -155,6 +154,8 @@ model kpi {
   tahun            String
   kpiCode          String    @unique @map("kpi_code")
   name             String
+  leadingSector    String?   @map("leading_sector")
+  supportingSector String?   @map("supporting_sector")
   sifat            String
   standard         String?
   baseline         String?
@@ -466,8 +467,8 @@ model SPJ {
   id       String @id @default(cuid())
   prokerId String @unique @map("proker_id")
 
-  noSPJ      String?   @map("no_spj")
-  nominalSPJ Int?      @map("nominal_spj")
+  noSPJ      String? @map("no_spj")
+  nominalSPJ Int?    @map("nominal_spj")
 
   statusPersetujuanBiro String?   @map("status_persetujuan_biro")
   keteranganBiro        String?   @map("keterangan_biro")
